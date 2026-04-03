@@ -1,33 +1,4 @@
-# Abhängigkeiten
-node_modules/
-__pycache__/
-*.pyc
-venv/
-.venv/
-
-# Umgebung & Secrets
 .env
-.env.local
-*.local.md
-credentials.json
-token.json
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# OS
-Thumbs.db
-.DS_Store
-desktop.ini
-
-# Build
-dist/
-build/
-*.egg-info/
-
-# Logs
-*.log
-npm-debug.log*
+node_modules/
+.next/
+volumes/
