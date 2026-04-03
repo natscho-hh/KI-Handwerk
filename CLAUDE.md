@@ -3,13 +3,14 @@
 ## Vault-Kontext
 
 Dieses Repo ist Teil des KI Handwerk Projekts. Der vollständige Projektkontext liegt im Obsidian Vault:
-→ `C:\AI Projekt\Github-Repos\Obsidian-Vault\CLAUDE.md`
+→ Der Obsidian Vault liegt im Repo `obsidian-vault` – geklont auf derselben Ebene wie dieses Repo.
+→ Relativer Pfad: `../obsidian-vault/CLAUDE.md`
 
 Relevante Vault-Dateien:
-- [[00 Kontext/Über uns.md]] – Wer sind Natscho und Lars
-- [[00 Kontext/ICP.md]] – Zielgruppe: Handwerks- und Dienstleistungsunternehmen
-- [[02 Projekte/KI Handwerk - Stufe 1 Vision.md]] – Vision Stufe 1
-- [[02 Projekte/KI Handwerk - Stufe 1 Todos.md]] – Aktuelle Todos
+- `../obsidian-vault/00 Kontext/Über uns.md` – Wer sind Natscho und Lars
+- `../obsidian-vault/00 Kontext/ICP.md` – Zielgruppe: Handwerks- und Dienstleistungsunternehmen
+- `../obsidian-vault/02 Projekte/KI Handwerk - Stufe 1 Vision.md` – Vision Stufe 1
+- `../obsidian-vault/02 Projekte/KI Handwerk - Stufe 1 Todos.md` – Aktuelle Todos
 
 ## Projekt
 
