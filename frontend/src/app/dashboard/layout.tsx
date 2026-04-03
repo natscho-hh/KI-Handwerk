@@ -39,7 +39,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               key={item.href}
               href={item.href}
               className={`block px-3 py-2 rounded-md text-sm ${
-                pathname === item.href
+                (item.href === "/dashboard" ? pathname === "/dashboard" : pathname.startsWith(item.href))
                   ? "bg-primary text-primary-foreground"
                   : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
               }`}
@@ -71,7 +71,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               key={item.href}
               href={item.href}
               className={`text-xs text-center px-2 py-1 ${
-                pathname === item.href ? "text-primary font-semibold" : "text-muted-foreground"
+                (item.href === "/dashboard" ? pathname === "/dashboard" : pathname.startsWith(item.href)) ? "text-primary font-semibold" : "text-muted-foreground"
               }`}
             >
               {item.label}
