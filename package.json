@@ -1,0 +1,9 @@
+{
+  "name": "ki-handwerk",
+  "version": "0.1.0",
+  "description": "Modulare SaaS-Plattform für Handwerks- und Dienstleistungsunternehmen",
+  "private": true,
+  "scripts": {},
+  "author": "KI Handwerk (Natscho & Lars)",
+  "license": "UNLICENSED"
+}
