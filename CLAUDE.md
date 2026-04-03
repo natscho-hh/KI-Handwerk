@@ -1,46 +1,81 @@
-# CLAUDE.md – KI Handwerk Monorepo
+# CLAUDE.md – KI Handwerk
 
 ## Vault-Kontext
 
 Dieses Repo ist Teil des KI Handwerk Projekts. Der vollständige Projektkontext liegt im Obsidian Vault:
 → `C:\AI Projekt\Github-Repos\Obsidian-Vault\CLAUDE.md`
 
-Lies bei Bedarf auch:
+Relevante Vault-Dateien:
 - [[00 Kontext/Über uns.md]] – Wer sind Natscho und Lars
 - [[00 Kontext/ICP.md]] – Zielgruppe: Handwerks- und Dienstleistungsunternehmen
-- [[00 Kontext/Angebot.md]] – Modulare SaaS-Plattform
-- [[02 Projekte/KI Handwerk.md]] – Aktueller Projektstatus
+- [[02 Projekte/KI Handwerk - Stufe 1 Vision.md]] – Vision Stufe 1
+- [[02 Projekte/KI Handwerk - Stufe 1 Todos.md]] – Aktuelle Todos
+
+## Projekt
+
+KI Handwerk ist ein Angebots- und Rechnungsmanager fuer Handwerker und Dienstleister. Stufe 1 umfasst:
+- Voice-KI Agent (Angebote per Sprache erstellen)
+- Angebots- und Rechnungsverwaltung im Dashboard
+- Kundenverwaltung mit automatischem Abgleich
+- PDF-Generierung mit E-Rechnung (ZUGFeRD/XRechnung)
+- Email-Versand, Monatsberichte, Zahlungsstatus
+- DSGVO-konform, Kleinunternehmerregelung
+
+## Tech-Stack
+
+| Bereich | Technologie |
+|---|---|
+| Frontend | Next.js 15+ (App Router) + shadcn/ui v4 + Tailwind v4 |
+| Backend/DB/Auth | Supabase (self-hosted, PostgreSQL) |
+| Automationen | N8N (Voice-Pipeline, PDF, Email) |
+| Voice-to-Text | OpenAI Whisper |
+| KI-Logik | Claude |
+| Hosting | Hostinger VPS (Docker Compose), spaeter Hetzner |
 
 ## Repo-Struktur
 
 ```
 KI-Handwerk/
-├── modules/                # Einzelne SaaS-Module
-│   ├── angebotsmanager/    # Angebote erstellen, verwalten, nachverfolgen
-│   ├── wartungsmanager/    # Wartungsberichte, Termine, Erinnerungen
-│   └── tagesgeschaeft/     # CEO Tagesbericht, Morgen-Brief, Routinen
-├── shared/                 # Gemeinsamer Code
-│   ├── utils/              # Hilfsfunktionen
-│   ├── types/              # TypeScript Types / Schemas
-│   └── constants/          # Konstanten (API-URLs, Konfiguration)
-├── docs/                   # Dokumentation
-│   ├── architecture/       # Architektur-Entscheidungen
-│   ├── api/                # API-Dokumentation
-│   └── workflows/          # n8n Workflow-Dokumentation
+├── docker-compose.yml          # Supabase + N8N + Next.js
+├── .env.example                # Umgebungsvariablen-Vorlage
+├── supabase/
+│   └── migrations/             # SQL Migrations (001-005)
+│       ├── 001_profiles.sql    # Firmenprofile + Onboarding
+│       ├── 002_customers.sql   # Kundentabelle
+│       ├── 003_quotes.sql      # Angebote + Positionen + Nummernkreis
+│       ├── 004_invoices.sql    # Rechnungen + Schutz + Nummernkreis
+│       └── 005_rls_policies.sql # Row Level Security
+├── frontend/                   # Next.js App
+│   ├── src/
+│   │   ├── app/
+│   │   │   ├── login/          # Login-Seite
+│   │   │   ├── register/       # Registrierung
+│   │   │   ├── onboarding/     # Firmendaten-Eingabe
+│   │   │   └── dashboard/      # Dashboard mit Sidebar
+│   │   ├── components/ui/      # shadcn/ui Komponenten
+│   │   └── lib/supabase/       # Supabase Client (Browser + Server)
+│   ├── src/middleware.ts        # Auth-Guard + Onboarding-Redirect
+│   └── Dockerfile              # Multi-stage Docker Build
 ```
 
-## Modul-Aufbau
+## Datenbank-Tabellen
 
-Jedes Modul unter `modules/` hat dieselbe Struktur:
-- `n8n-workflows/` – Exportierte n8n Workflows als JSON
-- `backend/` – API, Logik, Datenbank
-- `frontend/` – Web-UI (HTML/CSS/JS oder Framework)
-- `README.md` – Modul-spezifische Doku
+- **profiles** – Firmendaten (Onboarding), Kleinunternehmer-Flag
+- **customers** – Kundendaten mit user_id Zuordnung
+- **quotes** + **quote_items** – Angebote mit Positionen, Status (draft/sent/accepted/rejected)
+- **invoices** + **invoice_items** – Rechnungen (unveraenderbar nach Erstellung), Zahlungsstatus
+- Alle Tabellen mit Row Level Security (jeder User sieht nur eigene Daten)
 
 ## Regeln
 
-- Sprache: Deutsch (Code-Kommentare, UI, Docs)
-- Immer echte Umlaute (ä, ö, ü, ß)
-- n8n Workflows als JSON exportieren und versionieren
-- MQTT in n8n NICHT verwenden → InfluxDB Bridge
-- Anfängerfreundlich: was macht dieser Code/Node, warum brauchen wir ihn?
+- Sprache: Deutsch (UI, Docs). Code-Variablen auf Englisch
+- Angebotsnummern: A-00001 (fortlaufend pro User)
+- Rechnungsnummern: R-00001 (fortlaufend, lueckenlos pro User)
+- Rechnungen nach Erstellung unveraenderbar (nur Zahlungsstatus aenderbar)
+- Kleinunternehmer: Kein USt-Ausweis, Hinweistext auf Dokumenten
+- DSGVO: Self-hosted Supabase, RLS, Loeschkonzept beachten
+
+## Design-Docs
+
+- Spec: `docs/superpowers/specs/2026-04-03-ki-handwerk-stufe1-techstack-design.md`
+- Plan Phase A: `docs/superpowers/plans/2026-04-03-ki-handwerk-phase-a-fundament.md`
