@@ -9,8 +9,8 @@ Dieses Repo ist Teil des KI Handwerk Projekts. Der vollständige Projektkontext 
 Relevante Vault-Dateien:
 - `../obsidian-vault/00 Kontext/Über uns.md` – Wer sind Natscho und Lars
 - `../obsidian-vault/00 Kontext/ICP.md` – Zielgruppe: Handwerks- und Dienstleistungsunternehmen
-- `../obsidian-vault/02 Projekte/KI Handwerk - Stufe 1 Vision.md` – Vision Stufe 1
-- `../obsidian-vault/02 Projekte/KI Handwerk - Stufe 1 Todos.md` – Aktuelle Todos
+- `../obsidian-vault/02 Projekte/KI Handwerk/KI Handwerk - Stufe 1 Vision.md` – Vision Stufe 1
+- `../obsidian-vault/02 Projekte/KI Handwerk/KI Handwerk - Stufe 1 Todos.md` – Aktuelle Todos
 
 ## Projekt
 
