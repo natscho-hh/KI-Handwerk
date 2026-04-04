@@ -97,12 +97,25 @@ main (stabil – nur via Pull Request)
 4. **Review** – der andere schaut kurz drüber und merged
 5. **Branch löschen** nach dem Merge
 
-### Regeln fuer Claude Code Instanzen
+### Regeln fuer Claude Code Instanzen (Markus & Lars)
 
-- Vor jedem Start: `git pull origin main` ausfuehren
+**Session-Start (Pflicht):**
+```bash
+git checkout main && git pull origin main
+```
+Dann neuen Branch erstellen oder bestehenden Branch auschecken.
+
+**Waehrend der Session:**
+- Commits regelmaessig auf den eigenen Branch pushen: `git push origin <branch-name>`
 - Niemals direkt auf `main` commiten oder pushen
-- Wenn ein Task fertig ist: PR erstellen, nicht selbst mergen
-- Bei Konflikten beim Pull: erst mit dem anderen abstimmen, nicht einfach ueberschreiben
+- Wenn ein Task fertig ist: PR auf GitHub erstellen, nicht selbst mergen
+
+**Session-Ende:**
+- Alle Aenderungen commiten und auf den eigenen Branch pushen
+- PR erstellen falls noch nicht geschehen
+- Nichts auf `main` pushen
+
+**Bei Konflikten:** Erst mit dem anderen abstimmen, nicht einfach ueberschreiben
 
 ## Regeln
 
