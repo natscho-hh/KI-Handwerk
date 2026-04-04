@@ -67,6 +67,67 @@ KI-Handwerk/
 - **invoices** + **invoice_items** – Rechnungen (unveraenderbar nach Erstellung), Zahlungsstatus
 - Alle Tabellen mit Row Level Security (jeder User sieht nur eigene Daten)
 
+## Git-Workflow (Pflicht)
+
+Markus und Lars arbeiten parallel – direkte Pushes auf `main` sind verboten.
+
+### Branch-Strategie
+
+```
+main (stabil – nur via Pull Request)
+├── markus/<feature-name>    # Markus' Arbeitsbranches
+└── lars/<feature-name>      # Lars' Arbeitsbranches
+```
+
+**Namensbeispiele:**
+- `markus/phase-b1-kunden`
+- `markus/supabase-migrations`
+- `lars/phase-b1-angebote`
+- `lars/voice-ki-spec`
+
+### Workflow pro Aufgabe (vollstaendig automatisch)
+
+1. **Branch erstellen** (von aktuellem `main`):
+   ```bash
+   git checkout main && git pull origin main
+   git checkout -b markus/<feature-name>
+   ```
+2. **Entwickeln** – Commits regelmaessig auf den eigenen Branch pushen
+3. **Fertig** → PR erstellen und sofort automatisch mergen:
+   ```bash
+   gh pr create --title "..." --body "..."
+   gh pr merge --merge --delete-branch
+   git checkout main && git pull origin main
+   ```
+4. Kein manueller Schritt mehr noetig
+
+### Regeln fuer Claude Code Instanzen (Markus & Lars)
+
+**Session-Start (Pflicht):**
+```bash
+git checkout main && git pull origin main
+```
+Dann neuen Branch erstellen oder bestehenden Branch auschecken.
+
+**Waehrend der Session:**
+- Commits regelmaessig auf den eigenen Branch pushen: `git push origin <branch-name>`
+- Niemals direkt auf `main` commiten oder pushen
+- Wenn ein Task fertig ist: PR auf GitHub erstellen, nicht selbst mergen
+
+**Session-Ende (vollstaendig automatisch):**
+```bash
+git push origin <branch-name>
+gh pr create --title "Kurzer Titel" --body "Was wurde gemacht"
+gh pr merge --merge --delete-branch
+git checkout main && git pull origin main
+```
+
+**Bei Merge-Konflikt (zweiter PR nach gleichzeitiger Arbeit):**
+1. Konflikt-Marker in der betroffenen Datei lesen
+2. Beide Aenderungen zusammenfuehren
+3. Committen und PR erneut mergen
+4. Kein manuelles Eingreifen von Markus oder Lars noetig
+
 ## Regeln
 
 - Sprache: Deutsch (UI, Docs). Code-Variablen auf Englisch
