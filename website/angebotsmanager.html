@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>KI-Angebotsmanager | Angebote per Sprachnachricht erstellen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0a;--bg2:#111;--bg3:#181818;
+  --surface:#161616;--surface2:#1e1e1e;
+  --border:rgba(255,255,255,.08);--border-h:rgba(255,255,255,.15);
+  --txt:#f5f5f5;--txt2:#888;--txt3:#555;
+  --accent:#f59e0b;--accent2:#fbbf24;--accent-glow:rgba(245,158,11,.15);
+  --blue:#3b82f6;
+  --green:#22c55e;
+  --r:16px;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+
+/* LAYOUT — FULL BLEED + WIDE */
+.w{width:100%;padding:0 clamp(20px,4vw,80px)}
+.w-inner{max-width:1800px;margin:0 auto}
+
+/* REVEAL */
+.rv{opacity:0;transform:translateY(28px);transition:opacity .6s cubic-bezier(.16,1,.3,1),transform .6s cubic-bezier(.16,1,.3,1)}
+.rv.v{opacity:1;transform:none}
+.rv-d1{transition-delay:.07s}.rv-d2{transition-delay:.14s}.rv-d3{transition-delay:.21s}
+.rv-d4{transition-delay:.28s}.rv-d5{transition-delay:.35s}.rv-d6{transition-delay:.42s}
+
+/* NAV */
+.nav{position:sticky;top:0;z-index:100;width:100%;background:rgba(10,10,10,.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.nav .w-inner{display:flex;align-items:center;justify-content:space-between;height:64px}
+.nav-brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.05rem}
+.nav-mark{width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#d97706);
+  display:flex;align-items:center;justify-content:center;font-size:.95rem}
+.nav-links{display:flex;gap:4px;align-items:center}
+.nav-links a{color:var(--txt2);text-decoration:none;font-size:.84rem;font-weight:500;padding:8px 14px;border-radius:8px;transition:all .2s}
+.nav-links a:hover{color:var(--txt);background:rgba(255,255,255,.05)}
+
+/* BTN */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:11px 24px;border-radius:10px;border:none;
+  font-size:.88rem;font-weight:600;cursor:pointer;transition:all .2s;text-decoration:none;font-family:inherit}
+.btn-accent{background:var(--accent);color:#000;box-shadow:0 0 24px var(--accent-glow)}
+.btn-accent:hover{background:var(--accent2);box-shadow:0 0 40px rgba(245,158,11,.25);transform:translateY(-1px)}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--txt)}
+.btn-ghost:hover{border-color:var(--border-h);background:rgba(255,255,255,.04)}
+.btn-lg{padding:14px 32px;font-size:.95rem;border-radius:12px}
+.btn-w{width:100%;justify-content:center}
+
+/* === HERO === */
+.hero{width:100%;padding:80px 0 0;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;top:0;right:0;width:60%;height:100%;
+  background:radial-gradient(ellipse at 70% 30%,var(--accent-glow),transparent 60%);pointer-events:none}
+.hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;min-height:calc(100vh - 144px)}
+.hero-left{position:relative;z-index:2}
+.hero-tag{display:inline-flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);
+  padding:6px 14px;border-radius:100px;font-size:.72rem;font-weight:600;color:var(--accent);margin-bottom:24px;letter-spacing:.3px}
+.hero-tag .pulse{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.hero h1{font-size:clamp(2.4rem,5vw,4.2rem);font-weight:900;letter-spacing:-.04em;line-height:1.05;margin-bottom:20px}
+.hero h1 em{font-style:normal;color:var(--accent)}
+.hero-p{font-size:1.1rem;color:var(--txt2);line-height:1.7;margin-bottom:32px;max-width:540px}
+.hero-ctas{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:40px}
+.hero-social{display:flex;align-items:center;gap:14px;font-size:.78rem;color:var(--txt3)}
+.hero-avatars{display:flex}
+.hero-avatars span{width:30px;height:30px;border-radius:50%;border:2px solid var(--bg);margin-right:-7px;
+  display:flex;align-items:center;justify-content:center;font-size:.55rem;font-weight:700;color:#fff}
+.hero-avatars span:nth-child(1){background:#3b82f6}.hero-avatars span:nth-child(2){background:#8b5cf6}
+.hero-avatars span:nth-child(3){background:#22c55e}.hero-avatars span:nth-child(4){background:var(--accent)}
+
+/* HERO RIGHT — PDF */
+.hero-right{position:relative;z-index:2;display:flex;justify-content:center;align-items:flex-start;padding-top:20px}
+.pdf-mini{background:#fff;border-radius:6px;color:#1a1a1a;overflow:hidden;cursor:pointer;
+  width:100%;max-width:560px;
+  box-shadow:0 32px 80px rgba(0,0,0,.5);transition:transform .3s cubic-bezier(.16,1,.3,1);
+  transform:scale(.7);transform-origin:top right}
+.pdf-mini:hover{transform:scale(.73)}
+.pdf-hd{padding:20px 28px 14px;border-bottom:2px solid #f59e0b;display:flex;justify-content:space-between;align-items:flex-start}
+.pdf-co{display:flex;gap:12px;align-items:center}
+.pdf-logo{width:42px;height:42px;border-radius:8px;background:linear-gradient(135deg,#f59e0b,#d97706);
+  display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:.75rem}
+.pdf-co-info{font-size:.68rem;color:#666;line-height:1.6}
+.pdf-co-info strong{font-size:.82rem;color:#1a1a1a;display:block}
+.pdf-mt{text-align:right;font-size:.62rem;color:#888;line-height:1.7}
+.pdf-mt strong{color:#1a1a1a;font-size:.68rem}
+.pdf-tb{padding:12px 28px;background:#fffbeb}
+.pdf-tb h4{font-size:.78rem;font-weight:700;color:#92400e;margin-bottom:2px}
+.pdf-tb p{font-size:.65rem;color:#78716c}
+.pdf-bd{padding:16px 28px}
+.pdf-tbl{width:100%;border-collapse:collapse;font-size:.65rem}
+.pdf-tbl th{text-align:left;padding:6px 4px;border-bottom:2px solid #e5e7eb;color:#666;font-size:.58rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.pdf-tbl th:last-child,.pdf-tbl td:last-child{text-align:right}
+.pdf-tbl td{padding:6px 4px;border-bottom:1px solid #f3f4f6;color:#374151}
+.pdf-tbl .pn{color:#aaa;font-size:.58rem}
+.pdf-tot{display:flex;justify-content:flex-end;padding:8px 28px 4px}
+.pdf-tot-box{min-width:180px}
+.pdf-tot-r{display:flex;justify-content:space-between;padding:3px 0;font-size:.65rem;color:#666}
+.pdf-tot-r.big{border-top:2px solid #f59e0b;margin-top:4px;padding-top:6px;font-weight:800;color:#1a1a1a;font-size:.75rem}
+.pdf-ft{padding:10px 28px;background:#fafafa;border-top:1px solid #e5e7eb;font-size:.55rem;color:#aaa;display:flex;justify-content:space-between}
+.pdf-stamp{position:absolute;top:40%;right:30px;transform:rotate(-12deg);border:3px solid rgba(34,197,94,.2);
+  color:rgba(34,197,94,.25);padding:6px 18px;border-radius:6px;font-size:.85rem;font-weight:900;letter-spacing:2px;pointer-events:none}
+.pdf-hint{position:absolute;bottom:-28px;left:50%;transform:translateX(-50%);font-size:.72rem;color:var(--txt3);white-space:nowrap}
+
+/* PDF LIGHTBOX */
+.lb{position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.88);backdrop-filter:blur(10px);
+  display:none;align-items:center;justify-content:center;padding:24px;cursor:zoom-out;overflow-y:auto}
+.lb.open{display:flex;animation:lbIn .3s ease}
+@keyframes lbIn{from{opacity:0}to{opacity:1}}
+.lb-doc{background:#fff;border-radius:8px;color:#1a1a1a;width:100%;max-width:700px;overflow:hidden;cursor:default;
+  box-shadow:0 32px 80px rgba(0,0,0,.5);animation:lbPop .35s cubic-bezier(.16,1,.3,1)}
+@keyframes lbPop{from{transform:scale(.92);opacity:0}to{transform:none;opacity:1}}
+.lb-x{position:fixed;top:20px;right:20px;width:44px;height:44px;border-radius:50%;border:none;
+  background:rgba(255,255,255,.1);color:#fff;font-size:1.3rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;transition:background .2s}
+.lb-x:hover{background:rgba(255,255,255,.2)}
+/* Reuse pdf styles inside lightbox */
+.lb-doc .pdf-hd{padding:28px 36px 18px}
+.lb-doc .pdf-tb{padding:16px 36px}
+.lb-doc .pdf-bd{padding:20px 36px}
+.lb-doc .pdf-tbl{font-size:.78rem}
+.lb-doc .pdf-tbl th{font-size:.68rem;padding:8px 6px}
+.lb-doc .pdf-tbl td{padding:8px 6px}
+.lb-doc .pdf-tot{padding:12px 36px 8px}
+.lb-doc .pdf-tot-r{font-size:.78rem}
+.lb-doc .pdf-tot-r.big{font-size:.92rem}
+.lb-doc .pdf-ft{padding:14px 36px;font-size:.65rem}
+.lb-doc .pdf-co-info{font-size:.8rem}
+.lb-doc .pdf-co-info strong{font-size:.95rem}
+.lb-doc .pdf-mt{font-size:.75rem}
+.lb-doc .pdf-mt strong{font-size:.82rem}
+.lb-doc .pdf-tb h4{font-size:.92rem}
+.lb-doc .pdf-tb p{font-size:.78rem}
+.lb-doc .pdf-logo{width:52px;height:52px;font-size:.9rem}
+
+/* === STATS === */
+.stats-bar{width:100%;background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr)}
+.stat{text-align:center;padding:32px 16px;position:relative}
+.stat+.stat::before{content:'';position:absolute;left:0;top:20%;height:60%;width:1px;background:var(--border)}
+.stat-v{font-size:2rem;font-weight:900;color:var(--accent);letter-spacing:-.02em}
+.stat-l{font-size:.7rem;color:var(--txt2);text-transform:uppercase;letter-spacing:1px;margin-top:4px;font-weight:600}
+
+/* === GEWERKE === */
+.gewerke{width:100%;padding:72px 0;background:var(--bg)}
+.gewerke-title{text-align:center;margin-bottom:32px}
+.gewerke-title h2{font-size:1.4rem;font-weight:800;letter-spacing:-.02em}
+.gewerke-title p{color:var(--txt2);font-size:.88rem;margin-top:6px}
+.gw-grid{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.gw{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;border-radius:100px;
+  background:var(--surface);border:1px solid var(--border);font-size:.82rem;color:var(--txt);transition:all .2s;cursor:default}
+.gw:hover{border-color:var(--accent);background:var(--accent-glow);color:var(--accent)}
+.gw-i{font-size:1rem}
+
+/* === SECTION === */
+.sec{width:100%;padding:88px 0;position:relative}
+.sec-dark{background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.sec-lbl{font-size:.68rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+.sec-h{font-size:clamp(1.5rem,3vw,2.2rem);font-weight:900;letter-spacing:-.03em;margin-bottom:10px;line-height:1.15}
+.sec-p{color:var(--txt2);line-height:1.7;font-size:.92rem;max-width:500px}
+.sec-head{margin-bottom:48px}
+.sec-head.ctr{text-align:center;margin-left:auto;margin-right:auto;max-width:600px}
+.sec-head.ctr .sec-p{margin:8px auto 0}
+
+/* === STEPS 3-COL === */
+.steps3{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.stp{padding:36px 32px;border-radius:var(--r);background:var(--surface);border:1px solid var(--border);transition:all .25s}
+.stp:hover{border-color:var(--border-h);transform:translateY(-3px);box-shadow:0 16px 40px rgba(0,0,0,.3)}
+.stp-n{font-size:.62rem;font-weight:800;letter-spacing:2px;color:var(--accent);margin-bottom:16px}
+.stp-i{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;margin-bottom:16px;
+  background:var(--accent-glow);border:1px solid rgba(245,158,11,.15)}
+.stp h3{font-size:1.02rem;font-weight:700;margin-bottom:8px}
+.stp p{font-size:.86rem;color:var(--txt2);line-height:1.65}
+
+/* === BENEFITS 2x2 === */
+.ben-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.ben{display:flex;gap:20px;padding:32px;border-radius:var(--r);background:var(--surface);border:1px solid var(--border);transition:all .25s}
+.ben:hover{border-color:var(--border-h);transform:translateY(-3px);box-shadow:0 12px 32px rgba(0,0,0,.2)}
+.ben-i{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
+.ben:nth-child(1) .ben-i{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.15)}
+.ben:nth-child(2) .ben-i{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.15)}
+.ben:nth-child(3) .ben-i{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.15)}
+.ben:nth-child(4) .ben-i{background:rgba(168,85,247,.1);border:1px solid rgba(168,85,247,.15)}
+.ben h3{font-size:1.02rem;font-weight:700;margin-bottom:6px}
+.ben p{font-size:.86rem;color:var(--txt2);line-height:1.6}
+
+/* === PRICING 3-COL === */
+.price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;align-items:stretch}
+.plan{padding:36px 32px;border-radius:var(--r);background:var(--surface);border:1px solid var(--border);position:relative;transition:all .25s;
+  display:flex;flex-direction:column}
+.plan:hover{border-color:var(--border-h);transform:translateY(-3px);box-shadow:0 16px 40px rgba(0,0,0,.3)}
+.plan.pop{border-color:rgba(245,158,11,.3);background:linear-gradient(170deg,rgba(245,158,11,.04),var(--surface) 30%)}
+.plan.pop::before{content:'';position:absolute;top:0;left:20%;right:20%;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent)}
+.plan-tag{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--accent);color:#000;
+  padding:4px 16px;border-radius:100px;font-size:.65rem;font-weight:800;letter-spacing:.5px;white-space:nowrap}
+.plan-name{font-size:.68rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--txt2);margin-bottom:10px}
+.plan-price{font-size:2.6rem;font-weight:900;letter-spacing:-.03em}
+.plan-price span{font-size:.85rem;font-weight:500;color:var(--txt2)}
+.plan-desc{font-size:.82rem;color:var(--txt2);margin:8px 0 24px;line-height:1.5}
+.plan-ul{list-style:none;margin-bottom:28px;flex:1}
+.plan-ul li{padding:8px 0;font-size:.86rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.plan-ul li:last-child{border-bottom:none}
+.ck{width:20px;height:20px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.55rem;font-weight:700}
+.plan .ck{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.2)}
+.plan.pop .ck{background:rgba(245,158,11,.1);color:var(--accent);border:1px solid rgba(245,158,11,.2)}
+
+/* === TESTIMONIALS === */
+.test-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.test{padding:32px;border-radius:var(--r);background:var(--surface);border:1px solid var(--border);display:flex;flex-direction:column;transition:all .25s}
+.test:hover{border-color:var(--border-h);transform:translateY(-2px)}
+.test-stars{color:var(--accent);font-size:.82rem;letter-spacing:1px;margin-bottom:14px}
+.test-q{font-size:.9rem;line-height:1.7;flex:1;margin-bottom:20px;color:var(--txt);position:relative;padding-left:14px;
+  border-left:2px solid var(--accent)}
+.test-who{display:flex;align-items:center;gap:12px;padding-top:16px;border-top:1px solid var(--border)}
+.test-av{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;color:#fff;flex-shrink:0}
+.test:nth-child(1) .test-av{background:#3b82f6}
+.test:nth-child(2) .test-av{background:#8b5cf6}
+.test:nth-child(3) .test-av{background:#22c55e}
+.test-info strong{font-size:.86rem;display:block}
+.test-info span{font-size:.74rem;color:var(--txt2)}
+
+/* === CTA === */
+.cta{width:100%;padding:88px 0;background:linear-gradient(180deg,var(--bg),var(--bg2));position:relative}
+.cta::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent)}
+.cta-inner{text-align:center;max-width:640px;margin:0 auto}
+.cta-inner .sec-h{font-size:clamp(1.6rem,3vw,2.4rem)}
+.cta-inner p{color:var(--txt2);line-height:1.7;font-size:.95rem;margin:14px 0 32px}
+
+/* === FOOTER === */
+.foot{width:100%;border-top:1px solid var(--border);padding:32px 0}
+.foot .w-inner{display:flex;align-items:center;justify-content:space-between;font-size:.78rem;color:var(--txt3)}
+.foot a{color:var(--txt2);text-decoration:none;transition:color .2s}
+.foot a:hover{color:var(--accent)}
+.foot-links{display:flex;gap:20px}
+
+/* === CHAT === */
+#chatToggle{position:fixed;bottom:24px;right:24px;z-index:999;width:60px;height:60px;border-radius:50%;
+  background:var(--accent);border:none;color:#000;font-size:1.5rem;cursor:pointer;
+  box-shadow:0 4px 24px var(--accent-glow);transition:all .25s;display:flex;align-items:center;justify-content:center}
+#chatToggle:hover{transform:scale(1.08);box-shadow:0 8px 32px rgba(245,158,11,.35)}
+#chatToggle .dot{position:absolute;top:2px;right:2px;width:14px;height:14px;border-radius:50%;background:var(--green);border:3px solid var(--bg)}
+#chatPanel{position:fixed;bottom:24px;right:24px;z-index:1000;width:400px;height:560px;
+  background:var(--surface);border:1px solid var(--border);border-radius:20px;
+  box-shadow:0 24px 64px rgba(0,0,0,.6);display:none;flex-direction:column;overflow:hidden}
+#chatPanel.open{display:flex;animation:chatIn .3s cubic-bezier(.16,1,.3,1)}
+@keyframes chatIn{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}
+.ch-hdr{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;background:rgba(10,10,10,.5)}
+.ch-av{width:38px;height:38px;border-radius:10px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+.ch-hdr-t h3{font-size:.9rem;font-weight:700}
+.ch-hdr-t p{font-size:.68rem;color:var(--green);display:flex;align-items:center;gap:4px}
+.ch-hdr-t p::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green)}
+.ch-x{margin-left:auto;width:32px;height:32px;border-radius:8px;border:none;background:rgba(255,255,255,.05);
+  color:var(--txt2);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.ch-x:hover{background:rgba(255,255,255,.1);color:var(--txt)}
+#chatMsgs{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:12px}
+#chatMsgs::-webkit-scrollbar{width:3px}
+#chatMsgs::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:3px}
+.msg-bot{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:14px 14px 14px 4px;
+  padding:12px 16px;max-width:85%;font-size:.84rem;line-height:1.6;white-space:pre-wrap}
+.msg-user{background:var(--accent-glow);border:1px solid rgba(245,158,11,.12);border-radius:14px 14px 4px 14px;
+  padding:12px 16px;max-width:85%;font-size:.84rem;line-height:1.5;align-self:flex-end}
+.msg-typing{opacity:.4;font-style:italic}
+.ch-inp{padding:14px 16px;border-top:1px solid var(--border);display:flex;gap:8px;background:rgba(10,10,10,.4)}
+.ch-inp input{flex:1;padding:10px 14px;border-radius:10px;border:1px solid var(--border);
+  background:rgba(0,0,0,.3);color:var(--txt);font-size:.84rem;outline:none;font-family:inherit;transition:border-color .2s}
+.ch-inp input:focus{border-color:rgba(245,158,11,.3)}
+.ch-inp button{padding:10px 18px;border-radius:10px;border:none;background:var(--accent);
+  color:#000;font-weight:600;cursor:pointer;font-size:.84rem;font-family:inherit;transition:all .15s}
+.ch-inp button:hover{background:var(--accent2)}
+.ch-inp button:disabled{opacity:.3}
+
+/* === RESPONSIVE === */
+@media(max-width:1100px){
+  .hero-grid{grid-template-columns:1fr;gap:40px}
+  .hero-right{order:-1;justify-content:center}
+  .pdf-mini{transform:scale(.6);transform-origin:top center;max-width:560px}
+  .pdf-mini:hover{transform:scale(.62)}
+  .price-grid{grid-template-columns:1fr;max-width:440px;margin:0 auto}
+  .test-grid{grid-template-columns:1fr}
+  .ben-grid{grid-template-columns:1fr}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:768px){
+  .nav-links a:not(.btn){display:none}
+  .hero{padding:48px 0 0}
+  .hero-grid{min-height:auto}
+  .sec{padding:64px 0}
+  .steps3{grid-template-columns:1fr}
+  .foot .w-inner{flex-direction:column;gap:12px;text-align:center}
+  #chatPanel{width:calc(100% - 16px);height:calc(100dvh - 80px);bottom:8px;right:8px;border-radius:16px}
+}
+@media(max-width:480px){
+  .hero-ctas{flex-direction:column}
+  .hero-ctas .btn{width:100%;justify-content:center}
+  .stats-grid{grid-template-columns:1fr}
+  .stat+.stat::before{display:none}
+  .gw-grid{gap:8px}
+  .gw{padding:8px 14px;font-size:.76rem}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav"><div class="w"><div class="w-inner">
+  <div class="nav-brand"><div class="nav-mark">&#9889;</div> KI-Angebotsmanager</div>
+  <div class="nav-links">
+    <a href="#so-gehts">So geht's</a>
+    <a href="#vorteile">Vorteile</a>
+    <a href="#preise">Preise</a>
+    <a href="#referenzen">Referenzen</a>
+    <a href="#" onclick="toggleChat();return false" class="btn btn-accent">&#128172; KI-Berater</a>
+  </div>
+</div></div></nav>
+
+<!-- HERO -->
+<div class="hero"><div class="w"><div class="w-inner">
+  <div class="hero-grid">
+    <div class="hero-left">
+      <div class="hero-tag rv"><span class="pulse"></span> Für alle Gewerke: SHK, Elektro, Maler, Tischler &amp; mehr</div>
+      <h1 class="rv rv-d1">Angebote erstellen per <em>Sprachnachricht</em></h1>
+      <p class="hero-p rv rv-d2">Sprich 30 Sekunden in dein Handy — die KI erstellt ein professionelles PDF-Angebot mit deinem Briefkopf. Egal ob Sanitär, Elektro oder Ausbau. Ohne Büroarbeit.</p>
+      <div class="hero-ctas rv rv-d3">
+        <a href="#" onclick="toggleChat();return false" class="btn btn-accent btn-lg">&#127908; Jetzt live testen</a>
+        <a href="#so-gehts" class="btn btn-ghost btn-lg">So funktioniert es &#8594;</a>
+      </div>
+      <div class="hero-social rv rv-d4">
+        <div class="hero-avatars"><span>TM</span><span>MK</span><span>AW</span><span>+9</span></div>
+        Bereits von 12+ Handwerksbetrieben genutzt
+      </div>
+    </div>
+    <div class="hero-right rv rv-d2">
+      <div style="position:relative">
+        <div class="pdf-mini" onclick="openLb()">
+          <div class="pdf-stamp">BEISPIEL</div>
+          <div class="pdf-hd">
+            <div class="pdf-co"><div class="pdf-logo">SHK</div><div class="pdf-co-info"><strong>Müller Haustechnik GmbH</strong>Wandsbeker Chaussee 52 &middot; 22089 Hamburg<br>Tel: 040 / 123 456 78</div></div>
+            <div class="pdf-mt"><strong>Angebot Nr. 2026-0347</strong><br>Datum: 23.03.2026<br>Gültig bis: 22.04.2026</div>
+          </div>
+          <div class="pdf-tb"><h4>Angebot: Badsanierung komplett</h4><p>Kunde: Familie Schmidt &middot; Elbchaussee 114, 22763 Hamburg</p></div>
+          <div class="pdf-bd">
+            <table class="pdf-tbl">
+              <thead><tr><th>Pos.</th><th>Beschreibung</th><th>Menge</th><th>EP</th><th>Gesamt</th></tr></thead>
+              <tbody>
+                <tr><td class="pn">1</td><td>Demontage Altinstallation</td><td>pausch.</td><td>850 &euro;</td><td>850,00 &euro;</td></tr>
+                <tr><td class="pn">2</td><td>Bodenfliesen 60x60 inkl. Verlegung</td><td>14 m&sup2;</td><td>95 &euro;</td><td>1.330,00 &euro;</td></tr>
+                <tr><td class="pn">3</td><td>Wandfliesen 30x60 inkl. Verlegung</td><td>38 m&sup2;</td><td>85 &euro;</td><td>3.230,00 &euro;</td></tr>
+                <tr><td class="pn">4</td><td>Dusche bodengleich inkl. Ablauf</td><td>1 Stk</td><td>2.400 &euro;</td><td>2.400,00 &euro;</td></tr>
+                <tr><td class="pn">5</td><td>WC wandhängend Villeroy &amp; Boch</td><td>1 Stk</td><td>890 &euro;</td><td>890,00 &euro;</td></tr>
+                <tr><td class="pn">6</td><td>Waschtisch mit Unterschrank 80cm</td><td>1 Stk</td><td>1.250 &euro;</td><td>1.250,00 &euro;</td></tr>
+                <tr><td class="pn">7</td><td>Sanitärinstallation komplett</td><td>pausch.</td><td>3.200 &euro;</td><td>3.200,00 &euro;</td></tr>
+                <tr><td class="pn">8</td><td>Elektroarbeiten (Spots, Spiegel)</td><td>pausch.</td><td>680 &euro;</td><td>680,00 &euro;</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pdf-tot"><div class="pdf-tot-box">
+            <div class="pdf-tot-r"><span>Netto</span><span>13.830,00 &euro;</span></div>
+            <div class="pdf-tot-r"><span>MwSt. 19%</span><span>2.627,70 &euro;</span></div>
+            <div class="pdf-tot-r big"><span>Gesamt</span><span>16.457,70 &euro;</span></div>
+          </div></div>
+          <div class="pdf-ft"><span>Müller Haustechnik GmbH &middot; HRB 12345</span><span>IBAN: DE89 3704 0044 0532 0130 00</span></div>
+        </div>
+        <div class="pdf-hint">&#128269; Klicken zum Vergrößern</div>
+      </div>
+    </div>
+  </div>
+</div></div></div>
+
+<!-- STATS -->
+<div class="stats-bar"><div class="w"><div class="w-inner">
+  <div class="stats-grid">
+    <div class="stat rv"><div class="stat-v">&lt;2 Min</div><div class="stat-l">Pro Angebot</div></div>
+    <div class="stat rv rv-d1"><div class="stat-v">78%</div><div class="stat-l">Zeitersparnis</div></div>
+    <div class="stat rv rv-d2"><div class="stat-v">3x</div><div class="stat-l">Mehr Angebote</div></div>
+    <div class="stat rv rv-d3"><div class="stat-v">14 Tage</div><div class="stat-l">Kostenlos testen</div></div>
+  </div>
+</div></div></div>
+
+<!-- GEWERKE -->
+<div class="gewerke"><div class="w"><div class="w-inner">
+  <div class="gewerke-title rv">
+    <h2>Für jedes Gewerk &mdash; dein Angebot in Minuten</h2>
+    <p>Egal welches Handwerk du ausübst: Die KI kennt dein Gewerk und erstellt passende Angebote.</p>
+  </div>
+  <div class="gw-grid rv rv-d1">
+    <div class="gw"><span class="gw-i">&#128295;</span> SHK / Sanitär</div>
+    <div class="gw"><span class="gw-i">&#9889;</span> Elektro</div>
+    <div class="gw"><span class="gw-i">&#127912;</span> Maler &amp; Lackierer</div>
+    <div class="gw"><span class="gw-i">&#129717;</span> Tischler / Schreiner</div>
+    <div class="gw"><span class="gw-i">&#127969;</span> Dachdecker</div>
+    <div class="gw"><span class="gw-i">&#129521;</span> Fliesenleger</div>
+    <div class="gw"><span class="gw-i">&#128167;</span> Heizung &amp; Klima</div>
+    <div class="gw"><span class="gw-i">&#127760;</span> Garten- &amp; Landschaftsbau</div>
+    <div class="gw"><span class="gw-i">&#128679;</span> Trockenbau / Innenausbau</div>
+    <div class="gw"><span class="gw-i">&#128304;</span> Metallbau / Schlosserei</div>
+    <div class="gw"><span class="gw-i">&#128999;</span> Bodenleger</div>
+    <div class="gw"><span class="gw-i">&#9978;</span> Gebäudereinigung</div>
+  </div>
+</div></div></div>
+
+<!-- SO GEHTS -->
+<div class="sec sec-dark" id="so-gehts"><div class="w"><div class="w-inner">
+  <div class="sec-head ctr rv">
+    <div class="sec-lbl">So funktioniert es</div>
+    <div class="sec-h">In 3 Schritten zum fertigen Angebot</div>
+    <div class="sec-p">Kein Eintippen, kein Formatieren, kein Drucken. Du sprichst &mdash; die KI macht den Rest.</div>
+  </div>
+  <div class="steps3">
+    <div class="stp rv rv-d1"><div class="stp-n">SCHRITT 01</div><div class="stp-i">&#127908;</div><h3>Sprich dein Angebot ein</h3><p>Öffne Telegram und schick deinem Bot eine Sprachnachricht. Beschreib den Auftrag so, wie du ihn einem Kollegen erklären würdest.</p></div>
+    <div class="stp rv rv-d2"><div class="stp-n">SCHRITT 02</div><div class="stp-i">&#129302;</div><h3>KI erstellt das Angebot</h3><p>Unsere KI versteht dich, strukturiert die Positionen, kalkuliert die Preise und formatiert alles mit deinem Briefkopf.</p></div>
+    <div class="stp rv rv-d3"><div class="stp-n">SCHRITT 03</div><div class="stp-i">&#128196;</div><h3>Dein Kunde erhält das PDF</h3><p>Ein professionelles Angebot mit Logo, Positionen und Preisen geht automatisch per E-Mail an deinen Kunden.</p></div>
+  </div>
+</div></div></div>
+
+<!-- VORTEILE -->
+<div class="sec" id="vorteile"><div class="w"><div class="w-inner">
+  <div class="sec-head rv">
+    <div class="sec-lbl">Dein Vorteil</div>
+    <div class="sec-h">Schluss mit Büroarbeit am Feierabend</div>
+  </div>
+  <div class="ben-grid">
+    <div class="ben rv rv-d1"><div class="ben-i">&#9200;</div><div><h3>5-10 Stunden pro Woche gespart</h3><p>Nie wieder abends am Küchentisch Angebote tippen. Mach Feierabend oder arbeite an Aufträgen.</p></div></div>
+    <div class="ben rv rv-d2"><div class="ben-i">&#128176;</div><div><h3>Mehr Aufträge gewinnen</h3><p>Wer als erster ein Angebot schickt, bekommt den Zuschlag. Du reagierst in Minuten statt Tagen.</p></div></div>
+    <div class="ben rv rv-d3"><div class="ben-i">&#128241;</div><div><h3>Funktioniert überall</h3><p>Auf der Baustelle, im Auto, unterwegs. Alles was du brauchst ist dein Handy und Telegram.</p></div></div>
+    <div class="ben rv rv-d4"><div class="ben-i">&#127919;</div><div><h3>Professioneller Eindruck</h3><p>Dein Logo, dein Briefkopf, saubere Formatierung. Deine Kunden sehen: Hier arbeitet ein Profi.</p></div></div>
+  </div>
+</div></div></div>
+
+<!-- PREISE -->
+<div class="sec sec-dark" id="preise"><div class="w"><div class="w-inner">
+  <div class="sec-head ctr rv">
+    <div class="sec-lbl">Preise</div>
+    <div class="sec-h">Investiere in deine Zeit. Monatlich kündbar.</div>
+    <div class="sec-p">14 Tage kostenlos testen. Keine Kreditkarte nötig.</div>
+  </div>
+  <div class="price-grid">
+    <div class="plan rv rv-d1">
+      <div class="plan-name">Handwerker</div>
+      <div class="plan-price">199&euro; <span>/ Monat</span></div>
+      <div class="plan-desc">Für Einzelunternehmer und kleine Betriebe</div>
+      <ul class="plan-ul">
+        <li><span class="ck">&#10003;</span> 50 Angebote / Monat</li>
+        <li><span class="ck">&#10003;</span> 1 Nutzer</li>
+        <li><span class="ck">&#10003;</span> Eigener Briefkopf mit Logo</li>
+        <li><span class="ck">&#10003;</span> PDF per E-Mail an Kunden</li>
+        <li><span class="ck">&#10003;</span> Google Drive Archiv</li>
+        <li><span class="ck">&#10003;</span> Standard-Preisliste</li>
+        <li><span class="ck">&#10003;</span> E-Mail Support</li>
+      </ul>
+      <a href="#" onclick="toggleChat();return false" class="btn btn-ghost btn-w">Kostenlos testen</a>
+    </div>
+    <div class="plan pop rv rv-d2">
+      <div class="plan-tag">MEISTGEWÄHLT</div>
+      <div class="plan-name">Meisterbetrieb</div>
+      <div class="plan-price">349&euro; <span>/ Monat</span></div>
+      <div class="plan-desc">Für wachsende Betriebe mit mehreren Mitarbeitern</div>
+      <ul class="plan-ul">
+        <li><span class="ck">&#10003;</span> 150 Angebote / Monat</li>
+        <li><span class="ck">&#10003;</span> 5 Nutzer</li>
+        <li><span class="ck">&#10003;</span> Premium Briefkopf-Design</li>
+        <li><span class="ck">&#10003;</span> Preislisten-Import (Excel)</li>
+        <li><span class="ck">&#10003;</span> Nachfass-Erinnerungen</li>
+        <li><span class="ck">&#10003;</span> Angebots-Statistiken</li>
+        <li><span class="ck">&#10003;</span> Prioritäts-Support (Chat + Telefon)</li>
+      </ul>
+      <a href="#" onclick="toggleChat();return false" class="btn btn-accent btn-w">Kostenlos testen</a>
+    </div>
+    <div class="plan rv rv-d3">
+      <div class="plan-name">Unternehmen</div>
+      <div class="plan-price">599&euro; <span>/ Monat</span></div>
+      <div class="plan-desc">Für größere Betriebe und Gewerke-Gruppen</div>
+      <ul class="plan-ul">
+        <li><span class="ck">&#10003;</span> Unbegrenzte Angebote</li>
+        <li><span class="ck">&#10003;</span> Unbegrenzte Nutzer</li>
+        <li><span class="ck">&#10003;</span> Full Custom Design</li>
+        <li><span class="ck">&#10003;</span> API-Zugang</li>
+        <li><span class="ck">&#10003;</span> Eigene Workflows</li>
+        <li><span class="ck">&#10003;</span> Dedizierter Ansprechpartner</li>
+        <li><span class="ck">&#10003;</span> SLA Garantie</li>
+        <li><span class="ck">&#10003;</span> Onboarding-Workshop</li>
+      </ul>
+      <a href="#" onclick="toggleChat();return false" class="btn btn-ghost btn-w">Gespräch vereinbaren</a>
+    </div>
+  </div>
+  <p class="rv" style="text-align:center;margin-top:20px;color:var(--txt3);font-size:.8rem">Jahresabo: 2 Monate geschenkt. Alle Preise zzgl. MwSt.</p>
+</div></div></div>
+
+<!-- REFERENZEN -->
+<div class="sec" id="referenzen"><div class="w"><div class="w-inner">
+  <div class="sec-head ctr rv">
+    <div class="sec-lbl">Das sagen Handwerker</div>
+    <div class="sec-h">Überzeugt durch Ergebnisse</div>
+  </div>
+  <div class="test-grid">
+    <div class="test rv rv-d1">
+      <div class="test-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+      <div class="test-q">"Früher habe ich 2 Stunden pro Abend mit Angeboten verbracht. Jetzt spreche ich sie auf der Fahrt ein und der Kunde hat das PDF bevor ich ankomme."</div>
+      <div class="test-who"><div class="test-av">TM</div><div class="test-info"><strong>Thomas M.</strong><span>SHK-Meisterbetrieb, Hamburg</span></div></div>
+    </div>
+    <div class="test rv rv-d2">
+      <div class="test-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+      <div class="test-q">"Meine Frau hat sich gefreut, dass ich endlich mal vor 20 Uhr vom Schreibtisch weg bin. Das Tool hat sich am ersten Tag bezahlt gemacht."</div>
+      <div class="test-who"><div class="test-av">MK</div><div class="test-info"><strong>Markus K.</strong><span>Elektro, Lübeck</span></div></div>
+    </div>
+    <div class="test rv rv-d3">
+      <div class="test-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+      <div class="test-q">"Wir schicken jetzt 3x so viele Angebote wie vorher. Die Auftragsquote ist um 40% gestiegen, weil wir einfach schneller sind."</div>
+      <div class="test-who"><div class="test-av">AW</div><div class="test-info"><strong>Andreas W.</strong><span>Malerbetrieb, Kiel</span></div></div>
+    </div>
+  </div>
+</div></div></div>
+
+<!-- CTA -->
+<div class="cta"><div class="w"><div class="w-inner">
+  <div class="cta-inner rv">
+    <div class="sec-h">Bereit, deine Angebotserstellung zu revolutionieren?</div>
+    <p>Teste den KI-Angebotsmanager 14 Tage kostenlos. Keine Kreditkarte, kein Risiko.</p>
+    <a href="#" onclick="toggleChat();return false" class="btn btn-accent btn-lg">&#128172; Jetzt mit KI-Berater sprechen</a>
+  </div>
+</div></div></div>
+
+<!-- FOOTER -->
+<div class="foot"><div class="w"><div class="w-inner">
+  <div>KI-Angebotsmanager &mdash; <a href="https://crashcage.de">FM-Optimierer</a> &middot; Lars Tietjens, Hamburg</div>
+  <div class="foot-links"><a href="#">Impressum</a><a href="#">Datenschutz</a></div>
+</div></div></div>
+
+<!-- LIGHTBOX -->
+<div class="lb" id="lb" onclick="closeLb(event)">
+  <button class="lb-x" onclick="closeLb(event)">&#10005;</button>
+  <div class="lb-doc">
+    <div class="pdf-stamp">BEISPIEL</div>
+    <div class="pdf-hd">
+      <div class="pdf-co"><div class="pdf-logo">SHK</div><div class="pdf-co-info"><strong>Müller Haustechnik GmbH</strong>Wandsbeker Chaussee 52 &middot; 22089 Hamburg<br>Tel: 040 / 123 456 78 &middot; info@mueller-haustechnik.de</div></div>
+      <div class="pdf-mt"><strong>Angebot Nr. 2026-0347</strong><br>Datum: 23.03.2026<br>Gültig bis: 22.04.2026</div>
+    </div>
+    <div class="pdf-tb"><h4>Angebot: Badsanierung komplett</h4><p>Kunde: Familie Schmidt &middot; Elbchaussee 114, 22763 Hamburg</p></div>
+    <div class="pdf-bd">
+      <table class="pdf-tbl">
+        <thead><tr><th>Pos.</th><th>Beschreibung</th><th>Menge</th><th>Einzelpreis</th><th>Gesamt</th></tr></thead>
+        <tbody>
+          <tr><td class="pn">1</td><td>Demontage Altinstallation</td><td>pauschal</td><td>850,00 &euro;</td><td>850,00 &euro;</td></tr>
+          <tr><td class="pn">2</td><td>Bodenfliesen 60x60 inkl. Verlegung</td><td>14 m&sup2;</td><td>95,00 &euro;</td><td>1.330,00 &euro;</td></tr>
+          <tr><td class="pn">3</td><td>Wandfliesen 30x60 inkl. Verlegung</td><td>38 m&sup2;</td><td>85,00 &euro;</td><td>3.230,00 &euro;</td></tr>
+          <tr><td class="pn">4</td><td>Dusche bodengleich inkl. Ablauf</td><td>1 Stk</td><td>2.400,00 &euro;</td><td>2.400,00 &euro;</td></tr>
+          <tr><td class="pn">5</td><td>WC wandhängend Villeroy &amp; Boch</td><td>1 Stk</td><td>890,00 &euro;</td><td>890,00 &euro;</td></tr>
+          <tr><td class="pn">6</td><td>Waschtisch mit Unterschrank 80cm</td><td>1 Stk</td><td>1.250,00 &euro;</td><td>1.250,00 &euro;</td></tr>
+          <tr><td class="pn">7</td><td>Sanitärinstallation komplett</td><td>pauschal</td><td>3.200,00 &euro;</td><td>3.200,00 &euro;</td></tr>
+          <tr><td class="pn">8</td><td>Elektroarbeiten (Spots, Spiegel)</td><td>pauschal</td><td>680,00 &euro;</td><td>680,00 &euro;</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="pdf-tot"><div class="pdf-tot-box">
+      <div class="pdf-tot-r"><span>Netto</span><span>13.830,00 &euro;</span></div>
+      <div class="pdf-tot-r"><span>MwSt. 19%</span><span>2.627,70 &euro;</span></div>
+      <div class="pdf-tot-r big"><span>Gesamtbetrag</span><span>16.457,70 &euro;</span></div>
+    </div></div>
+    <div class="pdf-ft"><span>Müller Haustechnik GmbH &middot; HRB 12345 &middot; USt-IdNr. DE123456789</span><span>IBAN: DE89 3704 0044 0532 0130 00</span></div>
+  </div>
+</div>
+
+<!-- CHAT -->
+<button id="chatToggle" onclick="toggleChat()">&#128172;<span class="dot"></span></button>
+<div id="chatPanel">
+  <div class="ch-hdr">
+    <div class="ch-av">&#129302;</div>
+    <div class="ch-hdr-t"><h3>KI-Berater</h3><p>Online</p></div>
+    <button class="ch-x" onclick="toggleChat()">&#10005;</button>
+  </div>
+  <div id="chatMsgs">
+    <div class="msg-bot">Moin! Ich bin der KI-Berater vom Angebotsmanager. Ich kann dir zeigen wie das Tool funktioniert oder direkt ein Demo-Angebot für dich erstellen. Was interessiert dich?</div>
+  </div>
+  <div class="ch-inp">
+    <input type="text" id="chatIn" placeholder="Schreib deine Nachricht...">
+    <button onclick="sendMsg()" id="chatBtn">Senden</button>
+  </div>
+</div>
+
+<script>
+var API='https://n8n.srv1033052.hstgr.cloud/webhook/ag-chat';
+var chatOpen=false;
+function toggleChat(){chatOpen=!chatOpen;
+  document.getElementById('chatPanel').classList.toggle('open',chatOpen);
+  document.getElementById('chatToggle').style.display=chatOpen?'none':'flex';
+  if(chatOpen)document.getElementById('chatIn').focus()}
+document.getElementById('chatIn').addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg()}});
+function addMsg(t,c){var d=document.createElement('div');d.className=c;d.textContent=t;var a=document.getElementById('chatMsgs');a.appendChild(d);a.scrollTop=a.scrollHeight;return d}
+function sendMsg(){var inp=document.getElementById('chatIn'),msg=inp.value.trim();if(!msg)return;inp.value='';addMsg(msg,'msg-user');
+  var btn=document.getElementById('chatBtn');btn.disabled=true;btn.textContent='...';var typing=addMsg('Schreibt...','msg-bot msg-typing');
+  fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chatInput:msg})})
+  .then(function(r){return r.json()}).then(function(d){typing.remove();addMsg(d.output||'Fehler. Versuch es nochmal.','msg-bot')})
+  .catch(function(){typing.remove();addMsg('Verbindungsfehler. Bitte nochmal versuchen.','msg-bot')})
+  .finally(function(){btn.disabled=false;btn.textContent='Senden'})}
+
+/* Lightbox */
+function openLb(){document.getElementById('lb').classList.add('open');document.body.style.overflow='hidden'}
+function closeLb(e){if(e&&e.target.closest('.lb-doc')&&!e.target.closest('.lb-x'))return;
+  document.getElementById('lb').classList.remove('open');document.body.style.overflow=''}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLb()});
+
+/* Reveal */
+var obs=new IntersectionObserver(function(en){en.forEach(function(e){if(e.isIntersecting){e.target.classList.add('v');obs.unobserve(e.target)}})},{threshold:0.06,rootMargin:'0px 0px -20px 0px'});
+document.querySelectorAll('.rv').forEach(function(el){obs.observe(el)});
+</script>
+</body>
+</html>

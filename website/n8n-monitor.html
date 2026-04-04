@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>n8n Monitoring – KVM 1</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0f172a;--card:#1e293b;--card2:#334155;--text:#e2e8f0;--dim:#94a3b8;--blue:#3b82f6;--green:#10b981;--red:#ef4444;--orange:#f59e0b;--purple:#8b5cf6;--border:#475569}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:0}
+header{background:linear-gradient(135deg,#1e293b 0%,#0f172a 100%);border-bottom:1px solid var(--border);padding:20px 32px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.logo{display:flex;align-items:center;gap:12px}
+.logo h1{font-size:1.4rem;font-weight:700;letter-spacing:-0.5px}
+.logo .badge{background:var(--blue);color:#fff;font-size:0.7rem;font-weight:700;padding:4px 10px;border-radius:20px;letter-spacing:0.5px}
+.status-bar{display:flex;align-items:center;gap:16px;font-size:0.85rem;color:var(--dim)}
+.status-bar .dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.refresh-btn{background:var(--card2);border:1px solid var(--border);color:var(--text);padding:6px 14px;border-radius:8px;cursor:pointer;font-size:0.8rem;transition:all 0.2s}
+.refresh-btn:hover{background:var(--blue);border-color:var(--blue)}
+main{padding:24px 32px;max-width:1400px;margin:0 auto}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;position:relative;overflow:hidden;transition:transform 0.2s}
+.stat-card:hover{transform:translateY(-2px)}
+.stat-card .label{font-size:0.8rem;color:var(--dim);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px}
+.stat-card .value{font-size:2rem;font-weight:800;letter-spacing:-1px}
+.stat-card .sub{font-size:0.75rem;color:var(--dim);margin-top:4px}
+.stat-card .accent{position:absolute;top:0;right:0;width:60px;height:60px;border-radius:0 16px 0 60px;opacity:0.15}
+.stat-card.blue .value{color:var(--blue)}.stat-card.blue .accent{background:var(--blue)}
+.stat-card.green .value{color:var(--green)}.stat-card.green .accent{background:var(--green)}
+.stat-card.red .value{color:var(--red)}.stat-card.red .accent{background:var(--red)}
+.stat-card.orange .value{color:var(--orange)}.stat-card.orange .accent{background:var(--orange)}
+.stat-card.purple .value{color:var(--purple)}.stat-card.purple .accent{background:var(--purple)}
+
+.kvm-section{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:24px}
+.kvm-section h2{font-size:1rem;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.kvm-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.kvm-item{background:var(--bg);border-radius:10px;padding:14px}
+.kvm-item .kvm-label{font-size:0.75rem;color:var(--dim);margin-bottom:6px}
+.kvm-item .kvm-val{font-size:1.1rem;font-weight:700;margin-bottom:8px}
+.kvm-bar{height:6px;background:var(--card2);border-radius:3px;overflow:hidden}
+.kvm-bar-fill{height:100%;border-radius:3px;transition:width 0.6s ease}
+
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px}
+@media(max-width:900px){.two-col{grid-template-columns:1fr}}
+
+.section{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:24px}
+.section h2{font-size:1rem;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+
+.bar-chart .bar-row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.bar-row .bar-name{width:220px;font-size:0.8rem;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0}
+.bar-row .bar-track{flex:1;height:24px;background:var(--bg);border-radius:6px;overflow:hidden;position:relative}
+.bar-row .bar-fill{height:100%;border-radius:6px;transition:width 0.8s ease;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;font-size:0.7rem;font-weight:700;min-width:30px}
+.bar-row .bar-fill.blue{background:linear-gradient(90deg,var(--blue),#60a5fa)}
+.bar-row .bar-fill.green{background:linear-gradient(90deg,var(--green),#34d399)}
+.bar-row .bar-fill.purple{background:linear-gradient(90deg,var(--purple),#a78bfa)}
+
+table{width:100%;border-collapse:collapse;font-size:0.82rem}
+th{text-align:left;padding:10px 12px;color:var(--dim);font-weight:600;border-bottom:1px solid var(--border);font-size:0.75rem;text-transform:uppercase;letter-spacing:0.5px}
+td{padding:10px 12px;border-bottom:1px solid rgba(71,85,105,0.3)}
+tr:hover td{background:rgba(59,130,246,0.05)}
+.badge-ok{background:rgba(16,185,129,0.15);color:var(--green);padding:2px 8px;border-radius:10px;font-size:0.7rem;font-weight:600}
+.badge-err{background:rgba(239,68,68,0.15);color:var(--red);padding:2px 8px;border-radius:10px;font-size:0.7rem;font-weight:600}
+.badge-crash{background:rgba(245,158,11,0.15);color:var(--orange);padding:2px 8px;border-radius:10px;font-size:0.7rem;font-weight:600}
+
+.wf-link{color:var(--blue);text-decoration:none;font-weight:500}
+.wf-link:hover{text-decoration:underline}
+
+.loading{display:flex;align-items:center;justify-content:center;padding:60px;color:var(--dim)}
+.loading .spinner{width:24px;height:24px;border:3px solid var(--card2);border-top-color:var(--blue);border-radius:50%;animation:spin 0.8s linear infinite;margin-right:12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.error-box{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:12px;padding:20px;color:var(--red);text-align:center;margin:20px 0}
+
+footer{text-align:center;padding:20px;color:var(--dim);font-size:0.75rem;border-top:1px solid var(--border);margin-top:24px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <h1>n8n Monitoring</h1>
+    <span class="badge">KVM 1</span>
+  </div>
+  <div class="status-bar">
+    <div class="dot" id="statusDot"></div>
+    <span id="statusText">Verbinde...</span>
+    <span id="countdown"></span>
+    <button class="refresh-btn" onclick="loadData()">Aktualisieren</button>
+  </div>
+</header>
+
+<main>
+  <div id="content">
+    <div class="loading"><div class="spinner"></div>Lade Monitoring-Daten...</div>
+  </div>
+</main>
+
+<footer>
+  n8n Monitoring Dashboard – Hostinger KVM 1 &middot; Lars Neese &middot; <span id="footerTime"></span>
+</footer>
+
+<script>
+const API_URL = 'https://n8n.srv1033052.hstgr.cloud/webhook/n8n-monitor';
+const N8N_URL = 'https://n8n.srv1033052.hstgr.cloud';
+const REFRESH_SEC = 60;
+let timer = REFRESH_SEC;
+let interval;
+
+function formatDate(iso) {
+  if (!iso) return '–';
+  const d = new Date(iso);
+  return d.toLocaleDateString('de-DE', {day:'2-digit',month:'2-digit',year:'2-digit'}) + ' ' +
+         d.toLocaleTimeString('de-DE', {hour:'2-digit',minute:'2-digit'});
+}
+
+function timeAgo(iso) {
+  if (!iso) return '–';
+  const diff = Date.now() - new Date(iso).getTime();
+  const min = Math.floor(diff / 60000);
+  if (min < 1) return 'gerade eben';
+  if (min < 60) return `vor ${min} Min`;
+  const h = Math.floor(min / 60);
+  if (h < 24) return `vor ${h} Std`;
+  return `vor ${Math.floor(h/24)} Tagen`;
+}
+
+function statusBadge(status) {
+  if (status === 'crashed') return '<span class="badge-crash">CRASH</span>';
+  return '<span class="badge-err">FEHLER</span>';
+}
+
+function renderDashboard(d) {
+  const wf = d.workflows;
+  const ex = d.executions;
+  const kvm = d.kvm1;
+  const estTotal = parseInt(ex.highestId) || 0;
+
+  // Schaetze Auslastung basierend auf Execution-Volumen
+  const execPerDay = ex.last24h.total;
+  // KVM 1: ~5000 Exec/Tag ist komfortabel, >10000 wird eng
+  const loadPct = Math.min(100, Math.round((execPerDay / 8000) * 100));
+  const loadColor = loadPct < 50 ? 'var(--green)' : loadPct < 75 ? 'var(--orange)' : 'var(--red)';
+
+  let html = '';
+
+  // Stat Cards
+  html += '<div class="stats-grid">';
+  html += `<div class="stat-card blue"><div class="accent"></div><div class="label">Aktive Workflows</div><div class="value">${wf.active}</div><div class="sub">${wf.total} gesamt (${wf.archived} archiviert)</div></div>`;
+  html += `<div class="stat-card green"><div class="accent"></div><div class="label">Executions (24h)</div><div class="value">${ex.last24h.total}</div><div class="sub">${ex.last24h.success} OK / ${ex.last24h.errors} Fehler</div></div>`;
+  html += `<div class="stat-card ${ex.last24h.errorRate > 5 ? 'red' : ex.last24h.errorRate > 1 ? 'orange' : 'green'}"><div class="accent"></div><div class="label">Fehlerrate (24h)</div><div class="value">${ex.last24h.errorRate}%</div><div class="sub">${ex.last24h.errors} von ${ex.last24h.total} fehlgeschlagen</div></div>`;
+  html += `<div class="stat-card purple"><div class="accent"></div><div class="label">n8n Version</div><div class="value" style="font-size:1.5rem">${d.n8nVersion}</div><div class="sub">~${(estTotal/1000).toFixed(0)}k Executions gesamt</div></div>`;
+  html += '</div>';
+
+  // KVM 1 Ressourcen
+  html += '<div class="kvm-section">';
+  html += '<h2>Hostinger KVM 1 – Ressourcen</h2>';
+  html += '<div class="kvm-grid">';
+  html += `<div class="kvm-item"><div class="kvm-label">vCPU</div><div class="kvm-val">${kvm.vcpu} Kern</div><div class="kvm-bar"><div class="kvm-bar-fill" style="width:${loadPct}%;background:${loadColor}"></div></div><div style="font-size:0.7rem;color:var(--dim);margin-top:4px">Last: ~${loadPct}% (${execPerDay} Exec/Tag)</div></div>`;
+  html += `<div class="kvm-item"><div class="kvm-label">RAM</div><div class="kvm-val">${kvm.ram_gb} GB</div><div class="kvm-bar"><div class="kvm-bar-fill" style="width:${Math.min(100, wf.active * 3)}%;background:${wf.active > 25 ? 'var(--orange)' : 'var(--green)'}"></div></div><div style="font-size:0.7rem;color:var(--dim);margin-top:4px">~${wf.active} aktive Workflows</div></div>`;
+  html += `<div class="kvm-item"><div class="kvm-label">SSD</div><div class="kvm-val">${kvm.ssd_gb} GB</div><div class="kvm-bar"><div class="kvm-bar-fill" style="width:${Math.min(100, Math.round(estTotal/50000))}%;background:var(--blue)"></div></div><div style="font-size:0.7rem;color:var(--dim);margin-top:4px">~${(estTotal/1000).toFixed(0)}k Execution-Logs</div></div>`;
+  html += `<div class="kvm-item"><div class="kvm-label">Traffic</div><div class="kvm-val">${kvm.bandwidth_tb} TB/Monat</div><div class="kvm-bar"><div class="kvm-bar-fill" style="width:8%;background:var(--green)"></div></div><div style="font-size:0.7rem;color:var(--dim);margin-top:4px">Niedrig (API-Traffic)</div></div>`;
+  html += '</div></div>';
+
+  // Two-column layout
+  html += '<div class="two-col">';
+
+  // Top Workflows
+  html += '<div class="section"><h2>Top Workflows (nach Executions)</h2><div class="bar-chart">';
+  if (ex.topWorkflows && ex.topWorkflows.length > 0) {
+    const max = ex.topWorkflows[0].count;
+    const colors = ['blue','green','purple','blue','green','purple','blue','green','purple','blue'];
+    ex.topWorkflows.forEach((tw, i) => {
+      const pct = Math.max(5, Math.round((tw.count / max) * 100));
+      html += `<div class="bar-row"><span class="bar-name" title="${tw.name}">${tw.name}</span><div class="bar-track"><div class="bar-fill ${colors[i%3]}" style="width:${pct}%">${tw.count}</div></div></div>`;
+    });
+  } else {
+    html += '<div style="color:var(--dim);padding:20px;text-align:center">Keine Daten</div>';
+  }
+  html += '</div></div>';
+
+  // Letzte Fehler
+  html += '<div class="section"><h2>Letzte Fehler</h2>';
+  if (ex.recentErrors && ex.recentErrors.length > 0) {
+    html += '<table><thead><tr><th>Workflow</th><th>Zeit</th><th>Status</th></tr></thead><tbody>';
+    ex.recentErrors.slice(0, 10).forEach(e => {
+      html += `<tr><td><a class="wf-link" href="${N8N_URL}/workflow/${e.workflowId}" target="_blank">${e.workflow}</a></td><td>${timeAgo(e.startedAt)}</td><td>${statusBadge(e.status)}</td></tr>`;
+    });
+    html += '</tbody></table>';
+  } else {
+    html += '<div style="color:var(--green);padding:20px;text-align:center">Keine Fehler!</div>';
+  }
+  html += '</div>';
+  html += '</div>'; // end two-col
+
+  // Aktive Workflows Tabelle
+  html += '<div class="section"><h2>Aktive Workflows (' + wf.active + ')</h2>';
+  html += '<table><thead><tr><th>Name</th><th>Nodes</th><th>Zuletzt geaendert</th></tr></thead><tbody>';
+  const sorted = (wf.activeList || []).sort((a,b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+  sorted.forEach(w => {
+    html += `<tr><td><a class="wf-link" href="${N8N_URL}/workflow/${w.id}" target="_blank">${w.name}</a></td><td>${w.nodeCount || '–'}</td><td>${formatDate(w.updatedAt)}</td></tr>`;
+  });
+  html += '</tbody></table></div>';
+
+  return html;
+}
+
+async function loadData() {
+  const dot = document.getElementById('statusDot');
+  const txt = document.getElementById('statusText');
+  const content = document.getElementById('content');
+
+  try {
+    dot.style.background = 'var(--orange)';
+    txt.textContent = 'Lade Daten...';
+
+    const res = await fetch(API_URL);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const raw = await res.json();
+
+    // Die API gibt ein Array zurueck (allIncomingItems), erstes Element nehmen
+    let data;
+    if (Array.isArray(raw)) {
+      const item = raw[0];
+      data = item.json || item;
+    } else {
+      data = raw.json || raw;
+    }
+    if (!data || !data.workflows) throw new Error('Ungueltiges Datenformat');
+
+    content.innerHTML = renderDashboard(data);
+
+    dot.style.background = 'var(--green)';
+    txt.textContent = 'Live';
+    document.getElementById('footerTime').textContent = 'Aktualisiert: ' + new Date().toLocaleTimeString('de-DE');
+
+    timer = REFRESH_SEC;
+  } catch (err) {
+    dot.style.background = 'var(--red)';
+    txt.textContent = 'Fehler';
+    content.innerHTML = `<div class="error-box">Verbindung fehlgeschlagen: ${err.message}<br><br><small>Webhook-URL: ${API_URL}</small><br><small>Stelle sicher, dass der Workflow aktiv ist.</small></div>`;
+  }
+}
+
+function startCountdown() {
+  clearInterval(interval);
+  interval = setInterval(() => {
+    timer--;
+    document.getElementById('countdown').textContent = `(${timer}s)`;
+    if (timer <= 0) {
+      loadData();
+      timer = REFRESH_SEC;
+    }
+  }, 1000);
+}
+
+loadData();
+startCountdown();
+</script>
+</body>
+</html>

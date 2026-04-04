@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wartungsmanager — Autonome Wartungsplanung für Hausverwaltungen</title>
+<meta name="description" content="Wartungen planen, beauftragen und nachverfolgen — vollautomatisch. Der autonome Wartungsmanager für Hausverwaltungen und Facility Manager.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+--bg:#0a0a0a;--bg2:#111111;--bg3:#1a1a1a;--bg4:#222222;--bg5:#2a2a2a;
+--accent:#f59e0b;--accent-hover:#d97706;--accent-glow:rgba(245,158,11,.15);
+--text:#f5f5f5;--text2:#a3a3a3;--text3:#737373;
+--border:#262626;--border2:#333333;
+--radius:12px;--radius-lg:20px;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+.container{width:100%;max-width:1800px;margin:0 auto;padding:0 clamp(20px,4vw,80px)}
+a{text-decoration:none;color:inherit;transition:color .3s}
+img{max-width:100%;display:block}
+/* Scroll reveal */
+.reveal{opacity:0;transform:translateY(40px);transition:opacity .8s ease,transform .8s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.reveal-delay-1{transition-delay:.1s}
+.reveal-delay-2{transition-delay:.2s}
+.reveal-delay-3{transition-delay:.3s}
+.reveal-delay-4{transition-delay:.4s}
+.reveal-delay-5{transition-delay:.5s}
+
+/* ─── NAV ─── */
+.nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(10,10,10,.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:72px}
+.nav-logo{font-size:1.3rem;font-weight:800;letter-spacing:-.02em;color:var(--text)}
+.nav-logo span{color:var(--accent)}
+.nav-links{display:flex;align-items:center;gap:32px}
+.nav-links a{font-size:.875rem;font-weight:500;color:var(--text2);transition:color .3s}
+.nav-links a:hover{color:var(--accent)}
+.nav-cta{background:var(--accent);color:#000;padding:10px 24px;border-radius:8px;font-weight:600;font-size:.875rem;transition:background .3s,transform .2s}
+.nav-cta:hover{background:var(--accent-hover);transform:translateY(-1px)}
+.nav-mobile-toggle{display:none;background:none;border:none;color:var(--text);cursor:pointer;padding:8px}
+.nav-mobile-toggle svg{width:28px;height:28px}
+@media(max-width:900px){
+.nav-links{display:none;position:absolute;top:72px;left:0;right:0;background:rgba(10,10,10,.97);flex-direction:column;padding:24px;gap:20px;border-bottom:1px solid var(--border)}
+.nav-links.active{display:flex}
+.nav-mobile-toggle{display:block}
+}
+
+/* ─── HERO ─── */
+.hero{padding-top:140px;padding-bottom:100px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-200px;right:-200px;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(245,158,11,.08),transparent 70%);pointer-events:none}
+.hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(40px,5vw,80px);align-items:center}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--accent-glow);border:1px solid rgba(245,158,11,.25);border-radius:100px;padding:8px 20px;font-size:.8rem;font-weight:600;color:var(--accent);margin-bottom:24px}
+.hero-badge::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--accent);animation:pulse-dot 2s infinite}
+@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.4}}
+.hero h1{font-size:clamp(2.4rem,5vw,4rem);font-weight:900;line-height:1.1;letter-spacing:-.03em;margin-bottom:24px}
+.hero h1 .accent{color:var(--accent);position:relative}
+.hero-sub{font-size:clamp(1rem,1.5vw,1.25rem);color:var(--text2);max-width:560px;margin-bottom:40px;line-height:1.7}
+.hero-ctas{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:40px}
+.btn-primary{background:var(--accent);color:#000;padding:16px 36px;border-radius:10px;font-weight:700;font-size:1rem;border:none;cursor:pointer;transition:all .3s;display:inline-flex;align-items:center;gap:8px}
+.btn-primary:hover{background:var(--accent-hover);transform:translateY(-2px);box-shadow:0 8px 30px rgba(245,158,11,.25)}
+.btn-ghost{background:transparent;color:var(--text);padding:16px 36px;border-radius:10px;font-weight:600;font-size:1rem;border:1px solid var(--border2);cursor:pointer;transition:all .3s;display:inline-flex;align-items:center;gap:8px}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-glow)}
+.hero-trust{display:flex;align-items:center;gap:16px;color:var(--text3);font-size:.85rem}
+.hero-trust-avatars{display:flex}
+.hero-trust-avatars span{width:32px;height:32px;border-radius:50%;background:var(--bg3);border:2px solid var(--bg);margin-right:-10px;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:var(--text2)}
+.hero-trust-avatars span:nth-child(1){background:#1e3a5f}
+.hero-trust-avatars span:nth-child(2){background:#3a1e5f}
+.hero-trust-avatars span:nth-child(3){background:#1e5f3a}
+.hero-trust-avatars span:nth-child(4){background:#5f3a1e}
+
+/* Dashboard mockup */
+.hero-visual{position:relative}
+.dashboard{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;box-shadow:0 40px 80px rgba(0,0,0,.5)}
+.dashboard-header{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border);background:var(--bg3)}
+.dashboard-dots{display:flex;gap:8px}
+.dashboard-dots span{width:12px;height:12px;border-radius:50%}
+.dashboard-dots span:nth-child(1){background:#ef4444}
+.dashboard-dots span:nth-child(2){background:#f59e0b}
+.dashboard-dots span:nth-child(3){background:#22c55e}
+.dashboard-title{font-size:.8rem;font-weight:600;color:var(--text2)}
+.dashboard-body{padding:20px}
+.dashboard-month{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.dashboard-month h3{font-size:1rem;font-weight:700}
+.dashboard-month-nav{display:flex;gap:8px}
+.dashboard-month-nav button{background:var(--bg3);border:1px solid var(--border);color:var(--text2);width:28px;height:28px;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.8rem}
+.dash-entry{display:flex;align-items:flex-start;gap:16px;padding:14px 16px;border-radius:10px;background:var(--bg3);margin-bottom:10px;border:1px solid var(--border);transition:border-color .3s}
+.dash-entry:hover{border-color:var(--accent)}
+.dash-date{min-width:48px;text-align:center;padding:8px 0;background:var(--bg);border-radius:8px}
+.dash-date .day{font-size:1.2rem;font-weight:800;line-height:1}
+.dash-date .mon{font-size:.65rem;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+.dash-info{flex:1}
+.dash-info .title{font-size:.85rem;font-weight:600;margin-bottom:4px}
+.dash-info .location{font-size:.75rem;color:var(--text3);margin-bottom:6px}
+.dash-status{font-size:.7rem;font-weight:600;padding:4px 10px;border-radius:100px;display:inline-flex;align-items:center;gap:4px}
+.status-done{background:rgba(34,197,94,.12);color:#22c55e}
+.status-progress{background:rgba(245,158,11,.12);color:#f59e0b}
+.status-upcoming{background:rgba(59,130,246,.12);color:#3b82f6}
+.status-overdue{background:rgba(239,68,68,.12);color:#ef4444}
+.dash-mini-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}
+.dash-mini-stat{background:var(--bg);border-radius:8px;padding:12px;text-align:center;border:1px solid var(--border)}
+.dash-mini-stat .num{font-size:1.1rem;font-weight:800;color:var(--accent)}
+.dash-mini-stat .label{font-size:.65rem;color:var(--text3);margin-top:2px}
+
+@media(max-width:1000px){
+.hero-grid{grid-template-columns:1fr;text-align:center}
+.hero-sub{margin-left:auto;margin-right:auto}
+.hero-ctas{justify-content:center}
+.hero-trust{justify-content:center}
+.hero-visual{max-width:580px;margin:40px auto 0}
+}
+
+/* ─── STATS BAR ─── */
+.stats-bar{padding:60px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--bg2)}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:32px}
+.stat-item{text-align:center}
+.stat-num{font-size:clamp(1.5rem,3vw,2.2rem);font-weight:900;color:var(--accent);margin-bottom:8px}
+.stat-label{font-size:.9rem;color:var(--text2);font-weight:500}
+@media(max-width:700px){.stats-grid{grid-template-columns:repeat(2,1fr);gap:24px}}
+
+/* ─── HOW IT WORKS ─── */
+.how{padding:clamp(80px,10vw,140px) 0;position:relative}
+.section-label{display:inline-flex;align-items:center;gap:8px;color:var(--accent);font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;margin-bottom:16px}
+.section-label::before{content:'';width:24px;height:2px;background:var(--accent)}
+.section-title{font-size:clamp(1.8rem,4vw,3rem);font-weight:900;letter-spacing:-.02em;margin-bottom:16px}
+.section-sub{font-size:1.05rem;color:var(--text2);max-width:640px;margin-bottom:64px;line-height:1.7}
+.steps-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;position:relative}
+.steps-grid::before{content:'';position:absolute;top:56px;left:10%;right:10%;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.3}
+.step-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px 28px;text-align:center;position:relative;transition:border-color .3s,transform .3s}
+.step-card:hover{border-color:var(--accent);transform:translateY(-4px)}
+.step-number{width:56px;height:56px;border-radius:50%;background:var(--accent);color:#000;font-size:1.2rem;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;position:relative;z-index:2}
+.step-icon{font-size:2rem;margin-bottom:16px}
+.step-card h3{font-size:1.05rem;font-weight:700;margin-bottom:12px}
+.step-card p{font-size:.875rem;color:var(--text2);line-height:1.7}
+@media(max-width:900px){.steps-grid{grid-template-columns:repeat(2,1fr)}.steps-grid::before{display:none}}
+@media(max-width:550px){.steps-grid{grid-template-columns:1fr}}
+
+/* ─── FEATURES ─── */
+.features{padding:clamp(80px,10vw,140px) 0;background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.feature-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:36px 32px;transition:border-color .3s,transform .3s}
+.feature-card:hover{border-color:var(--accent);transform:translateY(-4px)}
+.feature-icon{width:56px;height:56px;border-radius:14px;background:var(--accent-glow);border:1px solid rgba(245,158,11,.2);display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:20px}
+.feature-card h3{font-size:1.1rem;font-weight:700;margin-bottom:12px}
+.feature-card p{font-size:.9rem;color:var(--text2);line-height:1.7}
+@media(max-width:900px){.features-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:550px){.features-grid{grid-template-columns:1fr}}
+
+/* ─── PRICING ─── */
+.pricing{padding:clamp(80px,10vw,140px) 0}
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;align-items:start}
+.price-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:40px 32px;transition:border-color .3s,transform .3s;position:relative}
+.price-card:hover{transform:translateY(-4px)}
+.price-card.featured{border-color:var(--accent);background:linear-gradient(180deg,rgba(245,158,11,.06),var(--bg2) 40%);transform:scale(1.03)}
+.price-card.featured:hover{transform:scale(1.03) translateY(-4px)}
+.price-badge{position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:var(--accent);color:#000;font-size:.75rem;font-weight:700;padding:6px 20px;border-radius:100px;white-space:nowrap}
+.price-name{font-size:1.1rem;font-weight:700;margin-bottom:8px}
+.price-amount{font-size:clamp(2rem,4vw,2.8rem);font-weight:900;margin-bottom:4px}
+.price-amount span{font-size:1rem;font-weight:500;color:var(--text3)}
+.price-period{font-size:.85rem;color:var(--text3);margin-bottom:28px}
+.price-features{list-style:none;margin-bottom:32px}
+.price-features li{padding:10px 0;border-bottom:1px solid var(--border);font-size:.9rem;color:var(--text2);display:flex;align-items:center;gap:10px}
+.price-features li::before{content:'✓';color:var(--accent);font-weight:700;font-size:.85rem}
+.price-btn{display:block;text-align:center;padding:14px;border-radius:10px;font-weight:700;font-size:.95rem;transition:all .3s;border:none;cursor:pointer;width:100%}
+.price-btn-primary{background:var(--accent);color:#000}
+.price-btn-primary:hover{background:var(--accent-hover);transform:translateY(-2px)}
+.price-btn-outline{background:transparent;color:var(--text);border:1px solid var(--border2)}
+.price-btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+@media(max-width:900px){.pricing-grid{grid-template-columns:1fr;max-width:480px;margin-left:auto;margin-right:auto}.price-card.featured{transform:none}.price-card.featured:hover{transform:translateY(-4px)}}
+
+/* ─── TESTIMONIALS ─── */
+.testimonials{padding:clamp(80px,10vw,140px) 0;background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.testimonials-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.testi-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:36px 32px;transition:border-color .3s}
+.testi-card:hover{border-color:var(--accent)}
+.testi-stars{color:var(--accent);font-size:1rem;margin-bottom:20px;letter-spacing:2px}
+.testi-text{font-size:.95rem;color:var(--text2);line-height:1.8;margin-bottom:24px;font-style:italic}
+.testi-author{display:flex;align-items:center;gap:14px}
+.testi-avatar{width:44px;height:44px;border-radius:50%;background:var(--bg3);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem;color:var(--accent)}
+.testi-meta .name{font-weight:700;font-size:.9rem}
+.testi-meta .role{font-size:.8rem;color:var(--text3)}
+@media(max-width:900px){.testimonials-grid{grid-template-columns:1fr;max-width:560px;margin-left:auto;margin-right:auto}}
+
+/* ─── CTA SECTION ─── */
+.cta-section{padding:clamp(80px,10vw,140px) 0;text-align:center;position:relative}
+.cta-section::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(245,158,11,.07),transparent 70%);pointer-events:none}
+.cta-section h2{font-size:clamp(2rem,4vw,3rem);font-weight:900;letter-spacing:-.02em;margin-bottom:20px;position:relative}
+.cta-section p{font-size:1.1rem;color:var(--text2);max-width:560px;margin:0 auto 40px;line-height:1.7}
+
+/* ─── FOOTER ─── */
+.footer{padding:48px 0;border-top:1px solid var(--border);background:var(--bg)}
+.footer-inner{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px}
+.footer-brand .name{font-weight:700;font-size:1rem;margin-bottom:4px}
+.footer-brand .sub{font-size:.8rem;color:var(--text3)}
+.footer-links{display:flex;gap:24px}
+.footer-links a{font-size:.85rem;color:var(--text3);transition:color .3s}
+.footer-links a:hover{color:var(--accent)}
+@media(max-width:600px){.footer-inner{flex-direction:column;text-align:center}}
+
+/* ─── CHAT WIDGET ─── */
+.chat-fab{position:fixed;bottom:28px;right:28px;z-index:9999;width:60px;height:60px;border-radius:50%;background:var(--accent);color:#000;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 24px rgba(245,158,11,.35);transition:transform .3s,box-shadow .3s}
+.chat-fab:hover{transform:scale(1.08);box-shadow:0 8px 32px rgba(245,158,11,.45)}
+.chat-fab svg{width:28px;height:28px}
+.chat-panel{position:fixed;bottom:100px;right:28px;z-index:9998;width:380px;max-width:calc(100vw - 40px);height:520px;max-height:calc(100vh - 140px);background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);display:none;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.chat-panel.open{display:flex}
+.chat-panel-header{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg3)}
+.chat-panel-header h4{font-size:.95rem;font-weight:700}
+.chat-close{background:none;border:none;color:var(--text3);cursor:pointer;font-size:1.3rem;padding:4px}
+.chat-messages{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:12px}
+.chat-msg{max-width:85%;padding:12px 16px;border-radius:14px;font-size:.88rem;line-height:1.6}
+.chat-msg.bot{background:var(--bg3);border:1px solid var(--border);align-self:flex-start;border-bottom-left-radius:4px}
+.chat-msg.user{background:var(--accent);color:#000;align-self:flex-end;border-bottom-right-radius:4px;font-weight:500}
+.chat-input-area{padding:14px;border-top:1px solid var(--border);display:flex;gap:10px}
+.chat-input-area input{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:var(--text);font-size:.88rem;font-family:inherit;outline:none;transition:border-color .3s}
+.chat-input-area input:focus{border-color:var(--accent)}
+.chat-input-area button{background:var(--accent);color:#000;border:none;border-radius:10px;padding:0 18px;font-weight:700;cursor:pointer;font-size:.9rem;transition:background .3s}
+.chat-input-area button:hover{background:var(--accent-hover)}
+.chat-typing{display:none;align-self:flex-start;padding:10px 16px;background:var(--bg3);border:1px solid var(--border);border-radius:14px;border-bottom-left-radius:4px;font-size:.85rem;color:var(--text3)}
+.chat-typing.show{display:flex;align-items:center;gap:6px}
+.chat-typing .dot{width:6px;height:6px;border-radius:50%;background:var(--text3);animation:typingBounce 1.4s infinite ease-in-out}
+.chat-typing .dot:nth-child(2){animation-delay:.2s}
+.chat-typing .dot:nth-child(3){animation-delay:.4s}
+@keyframes typingBounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
+</style>
+</head>
+<body>
+
+<!-- ─── NAV ─── -->
+<nav class="nav">
+<div class="container nav-inner">
+<a href="#" class="nav-logo">Wartungs<span>manager</span></a>
+<button class="nav-mobile-toggle" onclick="document.querySelector('.nav-links').classList.toggle('active')" aria-label="Menü">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+</button>
+<div class="nav-links">
+<a href="#how">So funktioniert's</a>
+<a href="#features">Vorteile</a>
+<a href="#pricing">Preise</a>
+<a href="#testimonials">Referenzen</a>
+<a href="#cta" class="nav-cta">Demo anfragen</a>
+</div>
+</div>
+</nav>
+
+<!-- ─── HERO ─── -->
+<section class="hero">
+<div class="container">
+<div class="hero-grid">
+<div class="reveal">
+<div class="hero-badge">Für Hausverwaltungen &amp; Facility Manager</div>
+<h1>Wartungen planen auf <span class="accent">Autopilot</span></h1>
+<p class="hero-sub">Ihr autonomer Assistent für Wartungsplanung, Firmenkoordination und Hausmeister-Abstimmung. Nie wieder vergessene Prüffristen, nie wieder manuelles Hinterhertelefonieren.</p>
+<div class="hero-ctas">
+<a href="#cta" class="btn-primary">Demo anfragen →</a>
+<a href="#how" class="btn-ghost">So funktioniert es</a>
+</div>
+<div class="hero-trust">
+<div class="hero-trust-avatars">
+<span>SR</span><span>PL</span><span>MB</span><span>TK</span>
+</div>
+<span>Bereits von 40+ Hausverwaltungen genutzt</span>
+</div>
+</div>
+<div class="hero-visual reveal reveal-delay-2">
+<div class="dashboard">
+<div class="dashboard-header">
+<div class="dashboard-dots"><span></span><span></span><span></span></div>
+<span class="dashboard-title">Wartungsmanager — Übersicht</span>
+<span style="font-size:.75rem;color:var(--text3)">März 2026</span>
+</div>
+<div class="dashboard-body">
+<div class="dashboard-month">
+<h3>Anstehende Wartungen</h3>
+<div class="dashboard-month-nav"><button>‹</button><button>›</button></div>
+</div>
+<div class="dash-entry">
+<div class="dash-date"><div class="day">18</div><div class="mon">Mär</div></div>
+<div class="dash-info">
+<div class="title">Heizungswartung</div>
+<div class="location">Objekt Elbchaussee 142, Hamburg</div>
+<span class="dash-status status-done">✓ Termin bestätigt</span>
+</div>
+</div>
+<div class="dash-entry">
+<div class="dash-date"><div class="day">21</div><div class="mon">Mär</div></div>
+<div class="dash-info">
+<div class="title">Aufzugsprüfung</div>
+<div class="location">Rothenbaumchaussee 78, Hamburg</div>
+<span class="dash-status status-progress">⟳ Firma kontaktiert</span>
+</div>
+</div>
+<div class="dash-entry">
+<div class="dash-date"><div class="day">04</div><div class="mon">Apr</div></div>
+<div class="dash-info">
+<div class="title">Brandschutzprüfung</div>
+<div class="location">Alsterufer 15, Hamburg</div>
+<span class="dash-status status-upcoming">◷ In 14 Tagen fällig</span>
+</div>
+</div>
+<div class="dash-entry">
+<div class="dash-date"><div class="day">12</div><div class="mon">Apr</div></div>
+<div class="dash-info">
+<div class="title">Legionellenprüfung</div>
+<div class="location">Harvestehuder Weg 22, Hamburg</div>
+<span class="dash-status status-upcoming">◷ In 22 Tagen fällig</span>
+</div>
+</div>
+<div class="dash-mini-stats">
+<div class="dash-mini-stat"><div class="num">12</div><div class="label">Diesen Monat</div></div>
+<div class="dash-mini-stat"><div class="num">0</div><div class="label">Überfällig</div></div>
+<div class="dash-mini-stat"><div class="num">98%</div><div class="label">Pünktlich</div></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- ─── STATS BAR ─── -->
+<section class="stats-bar">
+<div class="container">
+<div class="stats-grid reveal">
+<div class="stat-item">
+<div class="stat-num">95%</div>
+<div class="stat-label">Weniger Verwaltungsaufwand</div>
+</div>
+<div class="stat-item">
+<div class="stat-num">0</div>
+<div class="stat-label">Vergessene Wartungen</div>
+</div>
+<div class="stat-item">
+<div class="stat-num">24/7</div>
+<div class="stat-label">Aktiv für Sie</div>
+</div>
+<div class="stat-item">
+<div class="stat-num">Alle</div>
+<div class="stat-label">Gewerke abgedeckt</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- ─── HOW IT WORKS ─── -->
+<section class="how" id="how">
+<div class="container">
+<div class="reveal">
+<div class="section-label">So funktioniert's</div>
+<h2 class="section-title">In 4 Schritten zur autonomen Wartung</h2>
+<p class="section-sub">Einmal einrichten — danach kümmert sich der Wartungsmanager um alles. Von der Terminplanung bis zur Hausmeister-Koordination.</p>
+</div>
+<div class="steps-grid">
+<div class="step-card reveal reveal-delay-1">
+<div class="step-number">1</div>
+<div class="step-icon">🏢</div>
+<h3>Objekte &amp; Anlagen anlegen</h3>
+<p>Erfassen Sie einmalig Ihre Gebäude, Anlagen, Wartungsintervalle und zuständigen Fachfirmen.</p>
+</div>
+<div class="step-card reveal reveal-delay-2">
+<div class="step-number">2</div>
+<div class="step-icon">🤖</div>
+<h3>KI plant automatisch</h3>
+<p>Der Wartungsmanager prüft täglich, was ansteht, und erstellt automatisch Aufträge mit allen relevanten Details.</p>
+</div>
+<div class="step-card reveal reveal-delay-3">
+<div class="step-number">3</div>
+<div class="step-icon">📧</div>
+<h3>Firmen werden kontaktiert</h3>
+<p>Automatische E-Mails an Fachfirmen mit Terminvorschlägen. Nachfassen bei ausbleibender Antwort inklusive.</p>
+</div>
+<div class="step-card reveal reveal-delay-4">
+<div class="step-number">4</div>
+<div class="step-icon">💬</div>
+<h3>Hausmeister koordiniert</h3>
+<p>Der Telegram-Bot stimmt Zugang, Schlüsselübergabe und Termine direkt mit dem Hausmeister ab.</p>
+</div>
+</div>
+</div>
+</section>
+
+<!-- ─── FEATURES ─── -->
+<section class="features" id="features">
+<div class="container">
+<div class="reveal" style="text-align:center;margin-bottom:64px">
+<div class="section-label" style="justify-content:center">Vorteile</div>
+<h2 class="section-title">Alles, was Ihre Wartung braucht</h2>
+<p class="section-sub" style="margin-left:auto;margin-right:auto">Sechs Kernfunktionen, die Ihren Wartungsalltag grundlegend vereinfachen.</p>
+</div>
+<div class="features-grid">
+<div class="feature-card reveal reveal-delay-1">
+<div class="feature-icon">🔔</div>
+<h3>Nie wieder Wartungen vergessen</h3>
+<p>Automatische Überwachung aller Fristen und Intervalle. Der Manager erinnert, eskaliert und handelt — bevor etwas überfällig wird.</p>
+</div>
+<div class="feature-card reveal reveal-delay-2">
+<div class="feature-icon">📨</div>
+<h3>Automatische Firmenkommunikation</h3>
+<p>E-Mails an Fachfirmen mit Terminvorschlägen, automatisches Nachfassen bei ausbleibender Rückmeldung, Bestätigungen tracken.</p>
+</div>
+<div class="feature-card reveal reveal-delay-3">
+<div class="feature-icon">💬</div>
+<h3>Hausmeister-Koordination per Telegram</h3>
+<p>Ihr Hausmeister bekommt Termine per Telegram und bestätigt mit einem Klick. Kein Anruf, keine E-Mail, kein Zettel.</p>
+</div>
+<div class="feature-card reveal reveal-delay-1">
+<div class="feature-icon">📋</div>
+<h3>Lückenlose Dokumentation</h3>
+<p>Jede Wartung, jeder Termin, jede Kommunikation wird protokolliert. Perfekt für Audits, Versicherungen und Nachweispflichten.</p>
+</div>
+<div class="feature-card reveal reveal-delay-2">
+<div class="feature-icon">⚠️</div>
+<h3>Eskalation bei Verzug</h3>
+<p>Reagiert eine Firma nicht oder wird ein Termin verschoben? Der Manager eskaliert automatisch und informiert alle Beteiligten.</p>
+</div>
+<div class="feature-card reveal reveal-delay-3">
+<div class="feature-icon">📊</div>
+<h3>Dashboard mit Echtzeit-Überblick</h3>
+<p>Alle Objekte, alle Wartungen, alle Status auf einen Blick. Filtert nach Gebäude, Gewerk, Fälligkeit oder Status.</p>
+</div>
+</div>
+</div>
+</section>
+
+<!-- ─── PRICING ─── -->
+<section class="pricing" id="pricing">
+<div class="container">
+<div class="reveal" style="text-align:center;margin-bottom:64px">
+<div class="section-label" style="justify-content:center">Preise</div>
+<h2 class="section-title">Transparent und fair</h2>
+<p class="section-sub" style="margin-left:auto;margin-right:auto">Wählen Sie das Paket, das zu Ihrem Portfolio passt. Alle Preise zzgl. MwSt.</p>
+</div>
+<div class="pricing-grid">
+<div class="price-card reveal reveal-delay-1">
+<div class="price-name">Starter</div>
+<div class="price-amount">149€ <span>/Mo</span></div>
+<div class="price-period">Ideal für kleinere Verwaltungen</div>
+<ul class="price-features">
+<li>Bis 20 Objekte</li>
+<li>1 Nutzer</li>
+<li>E-Mail-Benachrichtigungen</li>
+<li>Wartungskalender</li>
+<li>Standard-Support</li>
+</ul>
+<a href="#cta" class="price-btn price-btn-outline">Jetzt starten</a>
+</div>
+<div class="price-card featured reveal reveal-delay-2">
+<div class="price-badge">Beliebteste Wahl</div>
+<div class="price-name">Professional</div>
+<div class="price-amount">349€ <span>/Mo</span></div>
+<div class="price-period">Für wachsende Verwaltungen</div>
+<ul class="price-features">
+<li>Bis 100 Objekte</li>
+<li>5 Nutzer</li>
+<li>Automatische Firmenkontaktierung</li>
+<li>Hausmeister-Telegram-Bot</li>
+<li>Nachfass-Automatik</li>
+<li>Prioritäts-Support</li>
+</ul>
+<a href="#cta" class="price-btn price-btn-primary">Demo anfragen</a>
+</div>
+<div class="price-card reveal reveal-delay-3">
+<div class="price-name">Enterprise</div>
+<div class="price-amount">699€ <span>/Mo</span></div>
+<div class="price-period">Für große Portfolios</div>
+<ul class="price-features">
+<li>Unbegrenzte Objekte</li>
+<li>Unbegrenzte Nutzer</li>
+<li>Custom Integrationen</li>
+<li>API-Zugang</li>
+<li>Dedizierter Ansprechpartner</li>
+<li>SLA Garantie</li>
+</ul>
+<a href="#cta" class="price-btn price-btn-outline">Kontakt aufnehmen</a>
+</div>
+</div>
+</div>
+</section>
+
+<!-- ─── TESTIMONIALS ─── -->
+<section class="testimonials" id="testimonials">
+<div class="container">
+<div class="reveal" style="text-align:center;margin-bottom:64px">
+<div class="section-label" style="justify-content:center">Referenzen</div>
+<h2 class="section-title">Was unsere Kunden sagen</h2>
+</div>
+<div class="testimonials-grid">
+<div class="testi-card reveal reveal-delay-1">
+<div class="testi-stars">★★★★★</div>
+<p class="testi-text">„Wir verwalten 45 Objekte und haben früher eine halbe Stelle nur für Wartungskoordination gebraucht. Jetzt läuft das automatisch."</p>
+<div class="testi-author">
+<div class="testi-avatar">SR</div>
+<div class="testi-meta">
+<div class="name">Stefan R.</div>
+<div class="role">Hausverwaltung, Hamburg</div>
+</div>
+</div>
+</div>
+<div class="testi-card reveal reveal-delay-2">
+<div class="testi-stars">★★★★★</div>
+<p class="testi-text">„Der Telegram-Bot für unsere Hausmeister ist genial. Die bestätigen Termine mit einem Klick."</p>
+<div class="testi-author">
+<div class="testi-avatar">PL</div>
+<div class="testi-meta">
+<div class="name">Petra L.</div>
+<div class="role">Facility Management, München</div>
+</div>
+</div>
+</div>
+<div class="testi-card reveal reveal-delay-3">
+<div class="testi-stars">★★★★★</div>
+<p class="testi-text">„Seit wir den Wartungsmanager nutzen, haben wir keine einzige Wartung mehr vergessen. Vorher passierte das monatlich."</p>
+<div class="testi-author">
+<div class="testi-avatar">MB</div>
+<div class="testi-meta">
+<div class="name">Michael B.</div>
+<div class="role">Immobilienverwaltung, Berlin</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- ─── CTA SECTION ─── -->
+<section class="cta-section" id="cta">
+<div class="container reveal">
+<h2>Bereit für stressfreies<br>Wartungsmanagement?</h2>
+<p>Sehen Sie in einer 15-minütigen Demo, wie der Wartungsmanager Ihren Alltag verändert. Kostenlos und unverbindlich.</p>
+<a href="mailto:info@fm-optimierer.de?subject=Demo%20Wartungsmanager" class="btn-primary" style="display:inline-flex">Demo anfragen →</a>
+</div>
+</section>
+
+<!-- ─── FOOTER ─── -->
+<footer class="footer">
+<div class="container footer-inner">
+<div class="footer-brand">
+<div class="name">FM-Optimierer — Lars Tietjens</div>
+<div class="sub">Hamburg, Deutschland</div>
+</div>
+<div class="footer-links">
+<a href="/impressum.html">Impressum</a>
+<a href="/datenschutz.html">Datenschutz</a>
+</div>
+</div>
+</footer>
+
+<!-- ─── CHAT WIDGET ─── -->
+<button class="chat-fab" onclick="toggleChat()" aria-label="Chat öffnen">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+</button>
+<div class="chat-panel" id="chatPanel">
+<div class="chat-panel-header">
+<h4>KI-Berater</h4>
+<button class="chat-close" onclick="toggleChat()">✕</button>
+</div>
+<div class="chat-messages" id="chatMessages">
+<div class="chat-msg bot">Moin! Ich bin der KI-Berater vom Wartungsmanager. Ich kann dir zeigen wie autonome Wartungsplanung funktioniert oder eine Demo für dein Unternehmen einrichten. Was interessiert dich?</div>
+<div class="chat-typing" id="chatTyping"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+</div>
+<div class="chat-input-area">
+<input type="text" id="chatInput" placeholder="Nachricht eingeben..." onkeydown="if(event.key==='Enter')sendChat()">
+<button onclick="sendChat()">→</button>
+</div>
+</div>
+
+<script>
+// Scroll reveal
+const obs=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target)}})},{threshold:0.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+// Chat
+function toggleChat(){document.getElementById('chatPanel').classList.toggle('open')}
+
+let sessionId='wm-'+Math.random().toString(36).substr(2,9);
+async function sendChat(){
+const input=document.getElementById('chatInput');
+const msg=input.value.trim();
+if(!msg)return;
+input.value='';
+const msgs=document.getElementById('chatMessages');
+const typing=document.getElementById('chatTyping');
+msgs.insertBefore(createMsg(msg,'user'),typing);
+typing.classList.add('show');
+msgs.scrollTop=msgs.scrollHeight;
+try{
+const res=await fetch('https://n8n.srv1033052.hstgr.cloud/webhook/wm-chat',{
+method:'POST',headers:{'Content-Type':'application/json'},
+body:JSON.stringify({message:msg,sessionId:sessionId})
+});
+const data=await res.json();
+typing.classList.remove('show');
+const reply=data.output||data.text||data.response||data.message||data[0]?.output||'Entschuldigung, es gab ein Problem. Bitte versuche es erneut.';
+msgs.insertBefore(createMsg(reply,'bot'),typing);
+}catch(e){
+typing.classList.remove('show');
+msgs.insertBefore(createMsg('Verbindung fehlgeschlagen. Bitte versuche es später erneut.','bot'),typing);
+}
+msgs.scrollTop=msgs.scrollHeight;
+}
+function createMsg(text,type){
+const d=document.createElement('div');
+d.className='chat-msg '+type;
+d.textContent=text;
+return d;
+}
+
+// Close mobile nav on link click
+document.querySelectorAll('.nav-links a').forEach(a=>a.addEventListener('click',()=>{document.querySelector('.nav-links').classList.remove('active')}));
+</script>
+</body>
+</html>

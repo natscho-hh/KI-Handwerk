@@ -1,0 +1,4 @@
+AuthType Basic
+AuthName "Lars Dashboard"
+AuthUserFile /is/htdocs/wp1070253_5KKAW9SZ9F/www/privat/.htpasswd
+Require valid-user
