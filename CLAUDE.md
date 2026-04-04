@@ -67,6 +67,43 @@ KI-Handwerk/
 - **invoices** + **invoice_items** – Rechnungen (unveraenderbar nach Erstellung), Zahlungsstatus
 - Alle Tabellen mit Row Level Security (jeder User sieht nur eigene Daten)
 
+## Git-Workflow (Pflicht)
+
+Markus und Lars arbeiten parallel – direkte Pushes auf `main` sind verboten.
+
+### Branch-Strategie
+
+```
+main (stabil – nur via Pull Request)
+├── markus/<feature-name>    # Markus' Arbeitsbranches
+└── lars/<feature-name>      # Lars' Arbeitsbranches
+```
+
+**Namensbeispiele:**
+- `markus/phase-b1-kunden`
+- `markus/supabase-migrations`
+- `lars/phase-b1-angebote`
+- `lars/voice-ki-spec`
+
+### Workflow pro Aufgabe
+
+1. **Branch erstellen** (von aktuellem `main`):
+   ```bash
+   git checkout main && git pull origin main
+   git checkout -b markus/<feature-name>
+   ```
+2. **Entwickeln** – Commits auf den eigenen Branch pushen
+3. **Fertig** → Pull Request auf GitHub nach `main` öffnen
+4. **Review** – der andere schaut kurz drüber und merged
+5. **Branch löschen** nach dem Merge
+
+### Regeln fuer Claude Code Instanzen
+
+- Vor jedem Start: `git pull origin main` ausfuehren
+- Niemals direkt auf `main` commiten oder pushen
+- Wenn ein Task fertig ist: PR erstellen, nicht selbst mergen
+- Bei Konflikten beim Pull: erst mit dem anderen abstimmen, nicht einfach ueberschreiben
+
 ## Regeln
 
 - Sprache: Deutsch (UI, Docs). Code-Variablen auf Englisch
