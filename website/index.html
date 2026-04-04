@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KI fürs Handwerk – Coming Soon</title>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#05080f;--surface:rgba(12,20,40,.85);--border:rgba(80,140,255,.1);
+  --txt:#d4e8ff;--txt2:#5a7a9e;--orange:#ff6d00;--green:#00e676;
+}
+html,body{min-height:100%;overflow-x:hidden}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  background:var(--bg);color:var(--txt);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  position:relative;
+}
+
+/* ── Background gradients ── */
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 50%, rgba(255,109,0,.06) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 80% at 80% 30%, rgba(80,140,255,.05) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 50% at 50% 80%, rgba(255,109,0,.04) 0%, transparent 60%);
+}
+
+/* ── Particle canvas ── */
+#particles{position:fixed;inset:0;z-index:0;pointer-events:none}
+
+/* ── Center glow behind text ── */
+.glow{
+  position:absolute;width:600px;height:600px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,109,0,.08) 0%,rgba(255,109,0,.02) 40%,transparent 70%);
+  pointer-events:none;z-index:0;
+  animation:glowPulse 6s ease-in-out infinite;
+}
+@keyframes glowPulse{
+  0%,100%{opacity:.7;transform:scale(1)}
+  50%{opacity:1;transform:scale(1.08)}
+}
+
+/* ── Main content ── */
+.content{position:relative;z-index:1;text-align:center;padding:1.5rem}
+
+.heading{
+  font-size:clamp(2.4rem,7vw,5rem);font-weight:700;letter-spacing:-.02em;
+  line-height:1.15;min-height:1.2em;
+  background:linear-gradient(135deg,var(--txt) 40%,var(--orange));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.heading .cursor{
+  display:inline-block;width:3px;height:.85em;vertical-align:text-bottom;
+  background:var(--orange);margin-left:4px;border-radius:2px;
+  animation:blink .6s step-end infinite;
+  -webkit-text-fill-color:var(--orange);
+}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+.subtitle{
+  font-size:clamp(1rem,3vw,1.6rem);color:var(--txt2);margin-top:.8rem;
+  font-weight:300;letter-spacing:.04em;
+  opacity:0;transform:translateY(12px);
+  transition:opacity .9s ease,transform .9s ease;
+}
+.subtitle.visible{opacity:1;transform:translateY(0)}
+
+/* ── Contact section ── */
+.contact{
+  position:relative;z-index:1;margin-top:2.5rem;
+}
+.contact-label{
+  display:block;font-size:.75rem;color:var(--txt2);margin-bottom:.8rem;
+  letter-spacing:.08em;text-transform:uppercase;
+}
+.contact-form{
+  display:flex;flex-direction:column;gap:.6rem;max-width:360px;margin:0 auto;
+}
+.contact-form input,.contact-form textarea{
+  width:100%;padding:.65rem 1rem;border-radius:10px;border:1px solid var(--border);
+  background:rgba(12,20,40,.85);color:var(--txt);font-size:.85rem;font-family:inherit;
+  outline:none;transition:border-color .3s;backdrop-filter:blur(10px);
+}
+.contact-form input:focus,.contact-form textarea:focus{border-color:var(--orange)}
+.contact-form textarea{resize:vertical;min-height:60px}
+.contact-form input::placeholder,.contact-form textarea::placeholder{color:var(--txt2)}
+.contact-row{display:flex;gap:.6rem}
+.contact-row input{flex:1}
+.contact-btn{
+  padding:.65rem 1.6rem;border:none;border-radius:50px;cursor:pointer;
+  font-size:.85rem;font-weight:600;letter-spacing:.02em;
+  background:linear-gradient(135deg,var(--orange),#e65100);color:#fff;
+  transition:all .35s ease;
+}
+.contact-btn:hover{box-shadow:0 0 24px rgba(255,109,0,.25);transform:translateY(-1px)}
+.contact-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.contact-success{
+  display:none;padding:.8rem;border-radius:10px;
+  background:rgba(0,230,118,.1);border:1px solid rgba(0,230,118,.25);
+  color:var(--green);font-size:.85rem;text-align:center;
+}
+.contact-or{font-size:.72rem;color:var(--txt2);margin:.3rem 0}
+.contact-mail{
+  display:inline-block;padding:.45rem 1.2rem;
+  border:1px solid rgba(255,109,0,.2);border-radius:50px;
+  color:var(--txt2);text-decoration:none;font-size:.78rem;
+  transition:all .3s;
+}
+.contact-mail:hover{border-color:var(--orange);color:var(--txt)}
+
+/* ── Footer ── */
+.footer{
+  position:fixed;bottom:1.2rem;left:0;right:0;text-align:center;
+  font-size:.7rem;color:var(--txt2);opacity:.4;letter-spacing:.06em;z-index:1;
+}
+
+/* ── Cookie Banner ── */
+.cookie-banner{
+  position:fixed;bottom:0;left:0;right:0;z-index:9999;
+  background:rgba(12,20,40,.95);border-top:1px solid var(--border);
+  backdrop-filter:blur(12px);padding:1rem 1.5rem;
+  display:flex;align-items:center;justify-content:center;gap:1rem;flex-wrap:wrap;
+  font-size:.82rem;color:var(--txt2);
+  transform:translateY(100%);animation:cookieSlide .5s ease forwards .8s;
+}
+.cookie-banner.hidden{display:none}
+@keyframes cookieSlide{to{transform:translateY(0)}}
+.cookie-banner p{margin:0;max-width:600px;line-height:1.5}
+.cookie-banner a{color:var(--orange);text-decoration:underline}
+.cookie-btns{display:flex;gap:.5rem;flex-shrink:0}
+.cookie-btn{
+  padding:.5rem 1.2rem;border:none;border-radius:50px;cursor:pointer;
+  font-size:.78rem;font-weight:600;transition:all .3s;
+}
+.cookie-btn-accept{
+  background:linear-gradient(135deg,var(--orange),#e65100);color:#fff;
+}
+.cookie-btn-accept:hover{box-shadow:0 0 16px rgba(255,109,0,.3)}
+.cookie-btn-reject{
+  background:transparent;border:1px solid var(--border);color:var(--txt2);
+}
+.cookie-btn-reject:hover{border-color:var(--txt2);color:var(--txt)}
+</style>
+</head>
+<body>
+
+<canvas id="particles"></canvas>
+<div class="glow"></div>
+
+<div class="content">
+  <h1 class="heading" id="heading"><span class="cursor"></span></h1>
+  <p class="subtitle" id="subtitle">entsteht hier...</p>
+  <div class="contact" id="contact" style="opacity:0;transform:translateY(10px);transition:opacity .8s ease .3s,transform .8s ease .3s">
+    <span class="contact-label">Kontakt</span>
+    <form class="contact-form" id="contactForm" onsubmit="sendContact(event)">
+      <div class="contact-row">
+        <input type="text" name="name" placeholder="Ihr Name" required>
+        <input type="text" name="gewerk" placeholder="Gewerk / Branche">
+      </div>
+      <div class="contact-row">
+        <input type="email" name="email" placeholder="E-Mail-Adresse" required>
+        <input type="tel" name="telefon" placeholder="Telefon (optional)">
+      </div>
+      <textarea name="nachricht" placeholder="Ihre Nachricht..." rows="3" required></textarea>
+      <button type="submit" class="contact-btn" id="contactBtn">Nachricht senden</button>
+    </form>
+    <div class="contact-success" id="contactSuccess">Vielen Dank! Ihre Anfrage ist eingegangen.</div>
+    <div class="contact-or">oder direkt per E-Mail</div>
+    <a class="contact-mail" href="mailto:info@fm-optimierer.de?subject=Kontaktanfrage%20%C3%BCber%20crashcage.de">info@fm-optimierer.de</a>
+  </div>
+</div>
+
+<div class="footer">powered by n8n &amp; Claude Code</div>
+
+<!-- Cookie Banner -->
+<div class="cookie-banner" id="cookieBanner">
+  <p>🍪 Diese Website nutzt nur technisch notwendige Cookies. Keine Tracker, kein Analyse-Tool.
+  <a href="datenschutz.html">Datenschutzerklärung</a></p>
+  <div class="cookie-btns">
+    <button class="cookie-btn cookie-btn-accept" onclick="acceptCookies()">✅ Alles klar</button>
+    <button class="cookie-btn cookie-btn-reject" onclick="rejectCookies()">Nur notwendige</button>
+  </div>
+</div>
+
+<script>
+/* ── Cookie Banner ── */
+function acceptCookies(){
+  localStorage.setItem('cookie-consent','all');
+  document.getElementById('cookieBanner').classList.add('hidden');
+}
+function rejectCookies(){
+  localStorage.setItem('cookie-consent','essential');
+  document.getElementById('cookieBanner').classList.add('hidden');
+}
+(function(){
+  if(localStorage.getItem('cookie-consent')){
+    document.getElementById('cookieBanner').classList.add('hidden');
+  }
+})();
+
+/* ── Typing animation ── */
+(function(){
+  var text='KI fürs Handwerk';
+  var el=document.getElementById('heading');
+  var sub=document.getElementById('subtitle');
+  var contact=document.getElementById('contact');
+  var i=0;
+  var speed=90;
+
+  function type(){
+    if(i<text.length){
+      var span=el.querySelector('.cursor');
+      el.insertBefore(document.createTextNode(text.charAt(i)),span);
+      i++;
+      setTimeout(type,speed);
+    }else{
+      setTimeout(function(){
+        var cursor=el.querySelector('.cursor');
+        if(cursor)cursor.style.display='none';
+        sub.classList.add('visible');
+        contact.style.opacity='1';
+        contact.style.transform='translateY(0)';
+      },400);
+    }
+  }
+
+  setTimeout(type,600);
+})();
+
+/* ── Contact form submit ── */
+async function sendContact(e){
+  e.preventDefault();
+  var btn=document.getElementById('contactBtn');
+  var form=document.getElementById('contactForm');
+  var success=document.getElementById('contactSuccess');
+  btn.disabled=true;btn.textContent='Wird gesendet...';
+  var fd=new FormData(form);
+  var data={name:fd.get('name'),gewerk:fd.get('gewerk'),email:fd.get('email'),telefon:fd.get('telefon'),nachricht:fd.get('nachricht')};
+  try{
+    await fetch('https://n8n.srv1033052.hstgr.cloud/webhook/website-anfrage-v2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+    form.style.display='none';
+    success.style.display='block';
+  }catch(err){
+    btn.disabled=false;btn.textContent='Nachricht senden';
+    alert('Fehler beim Senden. Bitte versuchen Sie es per E-Mail.');
+  }
+}
+
+/* ── Particles ── */
+(function(){
+  var c=document.getElementById('particles');
+  var ctx=c.getContext('2d');
+  var particles=[];
+  var count=60;
+
+  function resize(){
+    c.width=window.innerWidth;
+    c.height=window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize',resize);
+
+  function Particle(){
+    this.reset();
+  }
+  Particle.prototype.reset=function(){
+    this.x=Math.random()*c.width;
+    this.y=Math.random()*c.height;
+    this.r=Math.random()*1.2+.3;
+    this.dx=(Math.random()-.5)*.15;
+    this.dy=(Math.random()-.5)*.1-.02;
+    this.alpha=Math.random()*.4+.1;
+    this.fadeDir=Math.random()>.5?1:-1;
+    this.fadeSpeed=Math.random()*.003+.001;
+  };
+  Particle.prototype.update=function(){
+    this.x+=this.dx;
+    this.y+=this.dy;
+    this.alpha+=this.fadeDir*this.fadeSpeed;
+    if(this.alpha<=.05||this.alpha>=.5)this.fadeDir*=-1;
+    if(this.x<0||this.x>c.width||this.y<-10||this.y>c.height+10)this.reset();
+  };
+  Particle.prototype.draw=function(){
+    ctx.beginPath();
+    ctx.arc(this.x,this.y,this.r,0,Math.PI*2);
+    ctx.fillStyle='rgba(180,210,255,'+this.alpha+')';
+    ctx.fill();
+  };
+
+  for(var i=0;i<count;i++)particles.push(new Particle());
+
+  function loop(){
+    ctx.clearRect(0,0,c.width,c.height);
+    for(var i=0;i<particles.length;i++){
+      particles[i].update();
+      particles[i].draw();
+    }
+    requestAnimationFrame(loop);
+  }
+  loop();
+})();
+</script>
+</body>
+</html>

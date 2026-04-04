@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>KI-Angebotsmanager – Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --accent: #3d5afe;
+      --accent-dark: #2a3eb1;
+      --accent-light: #e8ecff;
+      --danger: #e53935;
+      --danger-light: #fdecea;
+      --text: #1a1a2e;
+      --text-muted: #6b7280;
+      --border: #e2e6ea;
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --radius: 14px;
+      --radius-sm: 8px;
+      --shadow: 0 4px 24px rgba(61, 90, 254, 0.08);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px 16px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      width: 100%;
+      max-width: 420px;
+      padding: 36px 28px 32px;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .header-icon {
+      font-size: 36px;
+      line-height: 1;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .header h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.3px;
+      margin-bottom: 6px;
+    }
+
+    .header p {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Form elements */
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    input[type="email"],
+    input[type="text"] {
+      width: 100%;
+      padding: 13px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      color: var(--text);
+      background: #fff;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    input[type="email"]:focus,
+    input[type="text"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(61, 90, 254, 0.12);
+    }
+
+    input[type="text"]#code {
+      font-size: 28px;
+      font-weight: 700;
+      text-align: center;
+      letter-spacing: 10px;
+      padding: 16px 14px;
+    }
+
+    .btn-primary {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      background: var(--accent);
+      color: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s, opacity 0.2s;
+      margin-top: 8px;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-dark);
+    }
+
+    .btn-primary:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-primary .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2.5px solid rgba(255,255,255,0.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Error message */
+    .error-box {
+      display: none;
+      background: var(--danger-light);
+      border: 1px solid #f5c6c5;
+      border-radius: var(--radius-sm);
+      color: var(--danger);
+      font-size: 13px;
+      font-weight: 500;
+      padding: 10px 12px;
+      margin-top: 12px;
+      line-height: 1.4;
+    }
+
+    .error-box.visible {
+      display: block;
+    }
+
+    /* Test-Modus Box */
+    .test-box {
+      background: var(--accent-light);
+      border: 1px solid #c5ceff;
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      margin-bottom: 20px;
+      font-size: 13px;
+      color: var(--accent-dark);
+      line-height: 1.5;
+    }
+
+    .test-box strong {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      display: block;
+      margin-top: 4px;
+      color: var(--accent);
+    }
+
+    /* Info text */
+    .info-text {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .info-text span.email-highlight {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    /* Resend link */
+    .resend-link {
+      display: block;
+      text-align: center;
+      margin-top: 16px;
+      font-size: 14px;
+      color: var(--accent);
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .resend-link:hover {
+      text-decoration: underline;
+    }
+
+    /* Field group spacing */
+    .field-group {
+      margin-bottom: 16px;
+    }
+
+    /* Divider */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 24px 0;
+    }
+
+    /* State visibility */
+    #state-email { display: block; }
+    #state-code  { display: none; }
+  </style>
+</head>
+<body>
+
+<div class="card">
+
+  <!-- STATE 1: E-Mail eingeben -->
+  <div id="state-email">
+    <div class="header">
+      <span class="header-icon">🔧</span>
+      <h1>KI-Angebotsmanager</h1>
+      <p>Melde dich an um fortzufahren</p>
+    </div>
+
+    <div class="field-group">
+      <label for="email">E-Mail-Adresse</label>
+      <input
+        type="email"
+        id="email"
+        placeholder="deine@email.de"
+        autocomplete="email"
+        inputmode="email"
+        spellcheck="false"
+        autocapitalize="none"
+      />
+    </div>
+
+    <button class="btn-primary" id="btn-send" onclick="requestCode()">
+      Code senden
+    </button>
+
+    <div class="error-box" id="error-email"></div>
+  </div>
+
+  <!-- STATE 2: Code eingeben -->
+  <div id="state-code">
+    <div class="header">
+      <span class="header-icon">📬</span>
+      <h1>Code eingeben</h1>
+    </div>
+
+    <p class="info-text">
+      Wir haben einen 6-stelligen Code an<br />
+      <span class="email-highlight" id="sent-to-email"></span><br />
+      gesendet.
+    </p>
+
+    <div class="test-box" id="test-box" style="display:none;">
+      🧪 Test-Modus: Dein Code ist
+      <strong id="test-code-display"></strong>
+    </div>
+
+    <div class="field-group">
+      <label for="code">6-stelliger Code</label>
+      <input
+        type="text"
+        id="code"
+        placeholder="000000"
+        maxlength="6"
+        pattern="[0-9]{6}"
+        inputmode="numeric"
+        autocomplete="one-time-code"
+        spellcheck="false"
+      />
+    </div>
+
+    <button class="btn-primary" id="btn-verify" onclick="verifyCode()">
+      Anmelden
+    </button>
+
+    <div class="error-box" id="error-code"></div>
+
+    <a class="resend-link" onclick="resendCode()">Neuen Code senden</a>
+  </div>
+
+</div>
+
+<script>
+  const LOGIN_URL = 'https://n8n.srv1033052.hstgr.cloud/webhook/ag-login';
+
+  // ── Beim Laden: bereits eingeloggt? ──────────────────────────────────────
+  (function checkSession() {
+    if (localStorage.getItem('ag_token')) {
+      window.location.href = 'ag-app.html';
+    }
+  })();
+
+  // ── Hilfsfunktionen ──────────────────────────────────────────────────────
+
+  function showError(id, msg) {
+    const box = document.getElementById(id);
+    if (!msg) {
+      box.textContent = '';
+      box.classList.remove('visible');
+    } else {
+      box.textContent = msg;
+      box.classList.add('visible');
+    }
+  }
+
+  function clearErrors() {
+    showError('error-email', '');
+    showError('error-code', '');
+  }
+
+  function setLoading(btnId, isLoading) {
+    const btn = document.getElementById(btnId);
+    if (isLoading) {
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span>Bitte warten…';
+    } else {
+      btn.disabled = false;
+      if (btnId === 'btn-send') btn.innerHTML = 'Code senden';
+      if (btnId === 'btn-verify') btn.innerHTML = 'Anmelden';
+    }
+  }
+
+  function showCodeInput(email, testCode) {
+    // Test-Code merken fuer lokale Verifizierung
+    window._testCode = testCode || '';
+
+    // E-Mail anzeigen
+    document.getElementById('sent-to-email').textContent = email;
+
+    // Test-Code anzeigen (falls vorhanden)
+    const testBox = document.getElementById('test-box');
+    if (testCode) {
+      document.getElementById('test-code-display').textContent = testCode;
+      testBox.style.display = 'block';
+    } else {
+      testBox.style.display = 'none';
+    }
+
+    // States umschalten
+    document.getElementById('state-email').style.display = 'none';
+    document.getElementById('state-code').style.display  = 'block';
+
+    // Code-Feld fokussieren
+    setTimeout(() => document.getElementById('code').focus(), 100);
+  }
+
+  // ── Code anfordern ───────────────────────────────────────────────────────
+
+  async function requestCode() {
+    clearErrors();
+    var email = document.getElementById('email').value.trim();
+    if (!email) {
+      showError('error-email', 'Bitte E-Mail-Adresse eingeben.');
+      return;
+    }
+
+    setLoading('btn-send', true);
+    try {
+      var resp = await fetch(LOGIN_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'request-code', email: email })
+      });
+      var data = await resp.json();
+      if (!data.success) {
+        showError('error-email', data.error || 'Unbekannter Fehler.');
+        setLoading('btn-send', false);
+        return;
+      }
+
+      window._loginEmail = email;
+      showCodeInput(email, data.testCode);
+
+    } catch (err) {
+      alert('Fehler: ' + err.message);
+      showError('error-email', 'Verbindungsfehler: ' + err.message);
+    } finally {
+      setLoading('btn-send', false);
+    }
+  }
+
+  // ── Code bestätigen ──────────────────────────────────────────────────────
+
+  async function verifyCode() {
+    clearErrors();
+    const code = document.getElementById('code').value.trim();
+    if (code.length !== 6) {
+      showError('error-code', 'Bitte den 6-stelligen Code eingeben.');
+      return;
+    }
+
+    // Test-Modus: Code lokal pruefen (Server kann ihn nicht speichern zwischen Aufrufen)
+    if (code !== window._testCode) {
+      showError('error-code', 'Falscher Code. Bitte nochmal versuchen.');
+      return;
+    }
+
+    // Session speichern
+    var token = Array.from({length: 32}, function() { return Math.random().toString(36)[2]; }).join('');
+    localStorage.setItem('ag_token', token);
+    localStorage.setItem('ag_user', window._loginEmail);
+    localStorage.setItem('ag_email', window._loginEmail);
+    localStorage.setItem('ag_firma', 'Lars Tietjens - KI im Handwerk');
+
+    // Weiterleitung zur App
+    window.location.href = 'ag-app.html';
+  }
+
+  // ── Neuen Code senden ────────────────────────────────────────────────────
+
+  function resendCode() {
+    // Zurück zu State 1
+    document.getElementById('code').value = '';
+    clearErrors();
+    document.getElementById('state-code').style.display  = 'none';
+    document.getElementById('state-email').style.display = 'block';
+    document.getElementById('email').focus();
+  }
+
+  // ── Enter-Taste Unterstützung ─────────────────────────────────────────────
+
+  document.getElementById('email').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') requestCode();
+  });
+
+  document.getElementById('code').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') verifyCode();
+  });
+
+  // ── Nur Ziffern im Code-Feld erlauben ────────────────────────────────────
+  document.getElementById('code').addEventListener('input', function() {
+    this.value = this.value.replace(/\D/g, '').slice(0, 6);
+  });
+</script>
+
+</body>
+</html>

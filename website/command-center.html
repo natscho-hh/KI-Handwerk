@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Command Center – Lars Tietjens</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#05080f;--surface:rgba(12,20,40,.85);--surface2:rgba(18,28,52,.92);
+  --border:rgba(80,140,255,.1);--border-h:rgba(80,140,255,.25);
+  --txt:#d4e8ff;--txt2:#5a7a9e;--muted:#3a5068;
+  --blue:#3b82f6;--blue-g:rgba(59,130,246,.25);
+  --green:#00e676;--green-g:rgba(0,230,118,.2);
+  --solar:#ffc107;--solar-g:rgba(255,193,7,.2);
+  --pink:#e879a0;--pink-g:rgba(232,121,160,.2);
+  --orange:#ff6d00;--red:#ff1744;--purple:#8b5cf6;
+  --r:14px;--rs:10px;
+}
+html,body{min-height:100vh;background:var(--bg);color:var(--txt);
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 60% 40% at 15% 10%,rgba(59,130,246,.04),transparent 60%),
+    radial-gradient(ellipse 50% 50% at 85% 15%,rgba(255,193,7,.03),transparent 55%),
+    radial-gradient(ellipse 40% 40% at 50% 90%,rgba(0,230,118,.03),transparent 50%)}
+
+/* ── HEADER ── */
+.hdr{display:flex;align-items:center;justify-content:space-between;
+  padding:14px 20px;background:rgba(5,8,15,.96);border-bottom:1px solid var(--border);
+  backdrop-filter:blur(30px);position:sticky;top:0;z-index:200}
+.hdr-brand{display:flex;align-items:center;gap:12px}
+.hdr-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#1e3a5f,#0d1b2a);border:1px solid var(--border);font-size:1.3rem;
+  box-shadow:0 0 20px rgba(59,130,246,.15)}
+.hdr-txt h1{font-size:1.05rem;font-weight:700;letter-spacing:-.01em}
+.hdr-txt p{font-size:.65rem;color:var(--txt2);letter-spacing:1px;text-transform:uppercase}
+.hdr-right{display:flex;align-items:center;gap:14px}
+#hclock{font-size:.9rem;font-weight:700;letter-spacing:1.5px;font-variant-numeric:tabular-nums;color:var(--txt2)}
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:blink 1.6s ease-in-out infinite;
+  box-shadow:0 0 8px var(--green-g)}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+
+/* ── TAB BAR ── */
+.tabs{display:flex;gap:4px;padding:10px 20px;background:rgba(5,8,15,.8);
+  border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{padding:9px 20px;border-radius:10px;border:1px solid transparent;background:transparent;
+  color:var(--txt2);font-size:.82rem;font-weight:600;cursor:pointer;white-space:nowrap;
+  transition:all .2s;display:flex;align-items:center;gap:7px}
+.tab:hover{background:rgba(255,255,255,.04);color:var(--txt)}
+.tab.act{background:var(--surface2);color:var(--txt);border-color:var(--border-h);
+  box-shadow:0 0 15px rgba(59,130,246,.08)}
+.tab-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.tab .badge{background:var(--red);color:#fff;font-size:.6rem;padding:1px 6px;border-radius:10px;font-weight:700}
+
+/* ── MAIN ── */
+.main{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:16px 16px 40px}
+.view{display:none}.view.act{display:block}
+
+/* ── GRID ── */
+.grid{display:grid;gap:14px}
+.grid-2{grid-template-columns:1fr 1fr}
+.grid-3{grid-template-columns:1fr 1fr 1fr}
+.grid-4{grid-template-columns:1fr 1fr 1fr 1fr}
+@media(max-width:900px){.grid-3,.grid-4{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
+
+/* ── CARD ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+  padding:18px;backdrop-filter:blur(20px);transition:border-color .2s,box-shadow .2s;position:relative;overflow:hidden}
+.card:hover{border-color:var(--border-h);box-shadow:0 4px 20px rgba(0,0,0,.3)}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.06),transparent)}
+.card-label{font-size:.6rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--txt2);margin-bottom:8px;
+  display:flex;align-items:center;gap:6px}
+.card-val{font-size:2rem;font-weight:900;letter-spacing:-1px;line-height:1.1}
+.card-sub{font-size:.72rem;color:var(--txt2);margin-top:4px}
+.card-icon{position:absolute;top:16px;right:16px;font-size:1.4rem;opacity:.4}
+
+/* ── STAT COLORS ── */
+.glow-blue{text-shadow:0 0 20px var(--blue-g)}
+.glow-green{text-shadow:0 0 20px var(--green-g)}
+.glow-solar{text-shadow:0 0 20px var(--solar-g);
+  background:linear-gradient(135deg,#fff8e1,#ffc107);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.glow-red{color:var(--red);text-shadow:0 0 20px rgba(255,23,68,.3)}
+.glow-orange{color:var(--orange);text-shadow:0 0 20px rgba(255,109,0,.3)}
+
+/* ── SECTION ── */
+.sec-title{font-size:.62rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  color:var(--txt2);margin:22px 0 10px 2px;display:flex;align-items:center;gap:8px}
+.sec-title::before{content:'';width:12px;height:2px;border-radius:1px}
+
+/* ── TABLE ── */
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{font-size:.6rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--txt2);
+  padding:8px 12px;text-align:left;border-bottom:1px solid var(--border)}
+.tbl td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.03);font-size:.82rem}
+.tbl tr:hover td{background:rgba(255,255,255,.02)}
+
+/* ── STATUS PILLS ── */
+.pill{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:.68rem;font-weight:700}
+.pill-green{background:rgba(0,230,118,.1);border:1px solid rgba(0,230,118,.25);color:var(--green)}
+.pill-yellow{background:rgba(255,193,7,.1);border:1px solid rgba(255,193,7,.25);color:var(--solar)}
+.pill-orange{background:rgba(255,109,0,.1);border:1px solid rgba(255,109,0,.25);color:var(--orange)}
+.pill-red{background:rgba(255,23,68,.1);border:1px solid rgba(255,23,68,.25);color:var(--red)}
+.pill-blue{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.25);color:var(--blue)}
+
+/* ── EVENT ROW ── */
+.ev{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.ev:last-child{border-bottom:none}
+.ev-stripe{width:3px;height:32px;border-radius:2px;flex-shrink:0}
+.ev-body{flex:1;min-width:0}
+.ev-ttl{font-size:.85rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ev-meta{font-size:.68rem;color:var(--txt2);margin-top:2px}
+.ev-time{font-size:.72rem;font-weight:600;color:var(--txt2);white-space:nowrap}
+
+/* ── PV GAUGE ── */
+.gauge-wrap{display:flex;align-items:center;gap:16px;padding:10px 0}
+.gauge-bar{flex:1;height:8px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden}
+.gauge-fill{height:100%;border-radius:4px;transition:width .8s ease}
+.gauge-label{font-size:.72rem;color:var(--txt2);min-width:70px}
+.gauge-val{font-size:.85rem;font-weight:700;min-width:65px;text-align:right}
+
+/* ── INVERTER CARD ── */
+.inv-card{display:flex;align-items:center;gap:14px;padding:14px;background:rgba(255,255,255,.02);
+  border-radius:var(--rs);border:1px solid var(--border);margin-bottom:8px}
+.inv-icon{font-size:1.5rem;opacity:.6}
+.inv-info{flex:1}
+.inv-name{font-size:.75rem;font-weight:700;color:var(--txt2);letter-spacing:.5px}
+.inv-watts{font-size:1.3rem;font-weight:900;letter-spacing:-1px}
+.inv-daily{font-size:.68rem;color:var(--txt2)}
+.inv-pct{font-size:.82rem;font-weight:700;min-width:45px;text-align:right}
+
+/* ── PROPERTY CARD ── */
+.obj-card{background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:var(--rs);
+  padding:14px;display:flex;flex-direction:column;gap:8px}
+.obj-name{font-size:.88rem;font-weight:700}
+.obj-loc{font-size:.7rem;color:var(--txt2)}
+.obj-badges{display:flex;gap:4px;flex-wrap:wrap}
+.obj-badge{font-size:.58rem;padding:2px 8px;border-radius:6px;background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--txt2)}
+
+/* ── TASK ROW ── */
+.task{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.task:last-child{border-bottom:none}
+.task-check{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:.6rem;cursor:pointer}
+.task-check.done{background:var(--green);border-color:var(--green);color:#fff}
+.task-body{flex:1}
+.task-ttl{font-size:.82rem;font-weight:600}
+.task-due{font-size:.65rem;color:var(--txt2)}
+
+/* ── PLUG CARD ── */
+.plug-card{display:flex;align-items:center;gap:14px;padding:16px;background:var(--surface);
+  border:1px solid var(--border);border-radius:var(--r);backdrop-filter:blur(20px);
+  transition:border-color .2s,box-shadow .2s;position:relative;overflow:hidden}
+.plug-card:hover{border-color:var(--border-h);box-shadow:0 4px 20px rgba(0,0,0,.3)}
+.plug-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.06),transparent)}
+.plug-icon{font-size:1.8rem;width:48px;height:48px;display:flex;align-items:center;justify-content:center;
+  border-radius:12px;background:rgba(255,255,255,.03);border:1px solid var(--border);flex-shrink:0}
+.plug-info{flex:1;min-width:0}
+.plug-name{font-size:.88rem;font-weight:700}
+.plug-power{font-size:1.3rem;font-weight:900;letter-spacing:-1px;margin-top:2px}
+.plug-sub{font-size:.68rem;color:var(--txt2);margin-top:2px}
+.plug-status{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.plug-status.on{background:var(--green);box-shadow:0 0 10px var(--green-g)}
+.plug-status.off{background:var(--txt2)}
+.plug-status.unavailable{background:var(--red);box-shadow:0 0 10px rgba(255,23,68,.2)}
+.plug-toggle{padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,.04);
+  color:var(--txt);font-size:.72rem;font-weight:700;cursor:pointer;transition:all .2s;flex-shrink:0}
+.plug-toggle:hover{background:rgba(255,255,255,.08);border-color:var(--border-h)}
+.plug-toggle.is-on{background:rgba(0,230,118,.1);border-color:rgba(0,230,118,.3);color:var(--green)}
+
+/* ── LOADING ── */
+.loading{text-align:center;padding:40px;color:var(--txt2);font-size:.85rem}
+.spin{display:inline-block;width:20px;height:20px;border:2px solid var(--border);
+  border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite;margin-right:8px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── RESPONSIVE ── */
+@media(max-width:600px){
+  .hdr{padding:10px 14px}
+  .tabs{padding:8px 14px}
+  .main{padding:12px 10px 30px}
+  .card-val{font-size:1.6rem}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-brand">
+    <div class="hdr-icon">⚡</div>
+    <div class="hdr-txt">
+      <h1>Command Center</h1>
+      <p>Lars Tietjens · Live</p>
+    </div>
+  </div>
+  <div class="hdr-right">
+    <div class="live-dot"></div>
+    <span id="hclock">--:--</span>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab act" onclick="switchTab('overview')" id="tab-overview">
+    <span>🏠</span> Übersicht
+  </button>
+  <button class="tab" onclick="switchTab('ceo')" id="tab-ceo">
+    <span class="tab-dot" style="background:#3b82f6"></span> Immobilien
+    <span class="badge" id="ceo-badge" style="display:none">0</span>
+  </button>
+  <button class="tab" onclick="switchTab('pv')" id="tab-pv">
+    <span class="tab-dot" style="background:#ffc107"></span> PV-Anlage
+  </button>
+  <button class="tab" onclick="switchTab('family')" id="tab-family">
+    <span class="tab-dot" style="background:#8b5cf6"></span> Familie
+  </button>
+  <button class="tab" onclick="switchTab('smarthome')" id="tab-smarthome">
+    <span class="tab-dot" style="background:#00e676"></span> Smart Home
+    <span class="badge" id="sh-badge" style="display:none">0</span>
+  </button>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- ═══ OVERVIEW ═══ -->
+  <div class="view act" id="view-overview">
+    <div class="grid grid-3" id="ov-stats">
+      <div class="card"><div class="card-icon">☀️</div><div class="card-label">PV Leistung</div>
+        <div class="card-val glow-solar" id="ov-pv">–</div><div class="card-sub">Aktuelle Erzeugung</div></div>
+      <div class="card"><div class="card-icon">🏢</div><div class="card-label">Objekte</div>
+        <div class="card-val glow-blue" id="ov-obj">–</div><div class="card-sub">Verwaltete Immobilien</div></div>
+      <div class="card"><div class="card-icon">⚠️</div><div class="card-label">Überfällig</div>
+        <div class="card-val glow-red" id="ov-overdue">–</div><div class="card-sub">Wartungsaufgaben</div></div>
+      <div class="card"><div class="card-icon">📅</div><div class="card-label">Heute</div>
+        <div class="card-val glow-green" id="ov-events">–</div><div class="card-sub">Termine</div></div>
+      <div class="card"><div class="card-icon">🔌</div><div class="card-label">Verbrauch</div>
+        <div class="card-val glow-blue" id="ov-consumption">–</div><div class="card-sub">Steckdosen gesamt</div></div>
+    </div>
+
+    <div class="sec-title" style="--c:var(--solar)">☀️ PV Live</div>
+    <div class="card" id="ov-pv-detail">
+      <div class="loading"><span class="spin"></span> Lade PV-Daten...</div>
+    </div>
+
+    <div class="sec-title" style="--c:var(--blue)">🏢 Immobilien Status</div>
+    <div class="card" id="ov-ceo-detail">
+      <div class="loading"><span class="spin"></span> Lade Immobilien...</div>
+    </div>
+
+    <div class="sec-title" style="--c:var(--green)">🏠 Smart Home</div>
+    <div class="card" id="ov-sh-detail">
+      <div class="loading"><span class="spin"></span> Lade Smart Home...</div>
+    </div>
+
+    <div class="sec-title" style="--c:var(--purple)">📅 Nächste Termine</div>
+    <div class="card" id="ov-fam-detail">
+      <div class="loading"><span class="spin"></span> Lade Kalender...</div>
+    </div>
+  </div>
+
+  <!-- ═══ CEO / IMMOBILIEN ═══ -->
+  <div class="view" id="view-ceo">
+    <div class="grid grid-3" id="ceo-stats"></div>
+    <div class="sec-title">🏢 Objekte</div>
+    <div class="grid grid-2" id="ceo-objects"></div>
+    <div class="sec-title">📋 Wartungsplan</div>
+    <div class="card"><table class="tbl" id="ceo-table">
+      <thead><tr><th>Aufgabe</th><th>Objekt</th><th>Status</th><th>Tage</th></tr></thead>
+      <tbody id="ceo-tbody"></tbody>
+    </table></div>
+  </div>
+
+  <!-- ═══ PV ═══ -->
+  <div class="view" id="view-pv">
+    <div class="card" style="text-align:center;padding:28px">
+      <div class="card-label" style="justify-content:center">Gesamtleistung</div>
+      <div class="card-val glow-solar" id="pv-total" style="font-size:3.5rem">–</div>
+      <div class="card-sub" id="pv-daily">Tagesertrag: –</div>
+    </div>
+    <div class="sec-title">⚡ Wechselrichter</div>
+    <div id="pv-inverters"></div>
+    <div class="sec-title">🔋 Batterie</div>
+    <div class="grid grid-2" id="pv-battery"></div>
+  </div>
+
+  <!-- ═══ SMART HOME ═══ -->
+  <div class="view" id="view-smarthome">
+    <!-- Energiefluss -->
+    <div class="card" style="text-align:center;padding:24px">
+      <div class="card-label" style="justify-content:center">Energiefluss Live</div>
+      <div style="display:flex;justify-content:center;align-items:center;gap:30px;flex-wrap:wrap;margin:16px 0">
+        <div><div style="font-size:2rem">☀️</div><div class="card-val glow-solar" id="sh-pv-power" style="font-size:1.8rem">–</div><div class="card-sub">PV Erzeugung</div></div>
+        <div style="font-size:1.5rem;color:var(--txt2)">→</div>
+        <div><div style="font-size:2rem">🔋</div><div class="card-val glow-green" id="sh-batt-power" style="font-size:1.8rem">–</div><div class="card-sub">Batterie</div></div>
+        <div style="font-size:1.5rem;color:var(--txt2)">→</div>
+        <div><div style="font-size:2rem">🏠</div><div class="card-val glow-blue" id="sh-load-power" style="font-size:1.8rem">–</div><div class="card-sub">Verbrauch</div></div>
+        <div style="font-size:1.5rem;color:var(--txt2)">⇄</div>
+        <div><div style="font-size:2rem">🔌</div><div class="card-val" id="sh-grid-power" style="font-size:1.8rem">–</div><div class="card-sub">Stromnetz</div></div>
+      </div>
+    </div>
+
+    <!-- Axpert Stats -->
+    <div class="sec-title">⚡ Axpert Wechselrichter</div>
+    <div class="grid grid-4" id="sh-axpert-stats"></div>
+
+    <!-- Steckdosen -->
+    <div class="sec-title">🔌 WLAN-Steckdosen</div>
+    <div class="grid grid-2" id="sh-plugs"></div>
+  </div>
+
+  <!-- ═══ FAMILIE ═══ -->
+  <div class="view" id="view-family">
+    <div class="grid grid-2">
+      <div class="card" id="fam-today">
+        <div class="card-label">📅 Heute</div>
+        <div class="loading"><span class="spin"></span> Lade...</div>
+      </div>
+      <div class="card" id="fam-tasks">
+        <div class="card-label">📝 Pam Tasks</div>
+        <div class="loading"><span class="spin"></span> Lade...</div>
+      </div>
+    </div>
+    <div class="sec-title">📆 Nächste 7 Tage</div>
+    <div class="card" id="fam-upcoming">
+      <div class="loading"><span class="spin"></span> Lade Kalender...</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── CONFIG ──
+const API = {
+  ceo: 'https://n8n.srv1033052.hstgr.cloud/webhook/ceo-dashboard',
+  pv:  'https://n8n.srv1033052.hstgr.cloud/webhook/pv-live',
+  cal: 'https://n8n.srv1033052.hstgr.cloud/webhook/familie-kalender',
+  tasks: 'https://n8n.srv1033052.hstgr.cloud/webhook/pam-tasks'
+};
+
+const PERSON_COLORS = {lars:'#3b82f6',pamy:'#e879a0',leon:'#10b981',leni:'#f97316',familie:'#8b5cf6',default:'#64748b'};
+let DATA = {ceo:null, pv:null, cal:null, tasks:null, ha:null};
+
+// ── CLOCK ──
+function tick(){
+  const d=new Date();
+  document.getElementById('hclock').textContent=d.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+tick(); setInterval(tick,1000);
+
+// ── TABS ──
+function switchTab(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('act'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('act'));
+  document.getElementById('view-'+id).classList.add('act');
+  document.getElementById('tab-'+id).classList.add('act');
+}
+
+// ── FETCH HELPERS ──
+async function fetchJSON(url){
+  try{
+    const r=await fetch(url,{headers:{'Accept':'application/json'},cache:'no-store'});
+    if(!r.ok)throw new Error(r.status);
+    return await r.json();
+  }catch(e){console.warn('Fetch error:',url,e);return null;}
+}
+
+function pillClass(status){
+  if(!status)return'pill-blue';
+  const s=status.toLowerCase();
+  if(s.includes('erledigt')||s.includes('ok')||s.includes('gruen')||s.includes('grün'))return'pill-green';
+  if(s.includes('faellig')||s.includes('fällig')||s.includes('gelb'))return'pill-yellow';
+  if(s.includes('bald')||s.includes('orange'))return'pill-orange';
+  if(s.includes('ueberfaellig')||s.includes('überfällig')||s.includes('rot')||s.includes('kritisch'))return'pill-red';
+  return'pill-blue';
+}
+
+function personColor(name){
+  if(!name)return PERSON_COLORS.default;
+  const n=name.toLowerCase();
+  for(const[k,v]of Object.entries(PERSON_COLORS))if(n.includes(k))return v;
+  return PERSON_COLORS.default;
+}
+
+function fmtDate(d){return new Date(d).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'})}
+function fmtTime(d){return new Date(d).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})}
+
+// ── PV RENDER ──
+function renderPV(d){
+  if(!d)return;
+  const pv=Array.isArray(d)?d[0]:d;
+  if(!pv)return;
+
+  // total power (API: camelCase)
+  const totalW = (pv.hm600Power||0)+(pv.hm350Power||0)+(pv.hm300Power||0);
+  const totalDay = ((pv.hm600||0)+(pv.hm350||0)+(pv.hm300||0))/1000; // Wh -> kWh
+
+  document.getElementById('ov-pv').textContent = totalW+'W';
+  document.getElementById('pv-total').textContent = totalW+'W';
+  document.getElementById('pv-daily').textContent = 'Tagesertrag: '+totalDay.toFixed(2)+' kWh';
+
+  // overview pv detail
+  const invs=[
+    {name:'HM-600',w:pv.hm600Power||0,max:600,daily:(pv.hm600||0)/1000,color:'var(--solar)'},
+    {name:'HM-350',w:pv.hm350Power||0,max:350,daily:(pv.hm350||0)/1000,color:'var(--green)'},
+    {name:'HM-300',w:pv.hm300Power||0,max:300,daily:(pv.hm300||0)/1000,color:'var(--blue)'}
+  ];
+
+  // overview card
+  document.getElementById('ov-pv-detail').innerHTML = invs.map(i=>{
+    const pct=Math.min(100,(i.w/i.max*100)).toFixed(0);
+    return `<div class="gauge-wrap">
+      <div class="gauge-label">${i.name}</div>
+      <div class="gauge-bar"><div class="gauge-fill" style="width:${pct}%;background:${i.color}"></div></div>
+      <div class="gauge-val" style="color:${i.color}">${i.w}W</div>
+    </div>`;
+  }).join('');
+
+  // full pv tab
+  document.getElementById('pv-inverters').innerHTML = invs.map(i=>{
+    const pct=Math.min(100,(i.w/i.max*100)).toFixed(0);
+    return `<div class="inv-card">
+      <div class="inv-icon">⚡</div>
+      <div class="inv-info">
+        <div class="inv-name">${i.name} (max ${i.max}W)</div>
+        <div class="inv-watts" style="color:${i.color}">${i.w}W</div>
+        <div class="inv-daily">Heute: ${i.daily.toFixed(2)} kWh</div>
+      </div>
+      <div class="inv-pct" style="color:${i.color}">${pct}%</div>
+    </div>`;
+  }).join('');
+
+  // battery (API: battery, lastPower, batteryVoltage)
+  const soc=pv.battery??'–';
+  const bpow=pv.lastPower??'–';
+  const bvolt=pv.batteryVoltage??'–';
+  document.getElementById('pv-battery').innerHTML = `
+    <div class="card"><div class="card-label">🔋 Ladestand</div>
+      <div class="card-val glow-green">${soc}%</div></div>
+    <div class="card"><div class="card-label">⚡ Batterie</div>
+      <div class="card-val glow-blue">${typeof bpow==='number'?bpow.toFixed(0)+'W':bpow}</div>
+      <div class="card-sub">${typeof bvolt==='number'?bvolt.toFixed(1)+'V':''}</div></div>`;
+}
+
+// ── CEO RENDER ──
+function renderCEO(d){
+  if(!d)return;
+  const data=Array.isArray(d)?d[0]:d;
+  if(!data)return;
+
+  const objects=data.objekte||[];
+  // wartungsplan kann top-level sein ODER aus Objekten zusammengebaut werden
+  let wartung=data.wartungsplan||[];
+  if(!wartung.length && objects.length){
+    wartung=objects.flatMap(o=>o.wartungen||[]);
+  }
+  const stats=data.stats||{};
+
+  const total=stats.anzahlObjekte||stats.gesamt||objects.length||0;
+  const overdue=stats.ueberfaellig||0;
+  const due=stats.faellig||0;
+  const done=stats.erledigt||0;
+
+  document.getElementById('ov-obj').textContent=total;
+  document.getElementById('ov-overdue').textContent=overdue;
+
+  // badge
+  if(overdue>0){
+    const b=document.getElementById('ceo-badge');
+    b.style.display='inline';b.textContent=overdue;
+  }
+
+  // ceo stats
+  document.getElementById('ceo-stats').innerHTML=`
+    <div class="card"><div class="card-icon">🏢</div><div class="card-label">Objekte</div>
+      <div class="card-val glow-blue">${total}</div></div>
+    <div class="card"><div class="card-icon">⚠️</div><div class="card-label">Überfällig</div>
+      <div class="card-val glow-red">${overdue}</div></div>
+    <div class="card"><div class="card-icon">✅</div><div class="card-label">Erledigt</div>
+      <div class="card-val glow-green">${done}</div></div>`;
+
+  // objects (API: Name, Adresse, Gewerke als String)
+  document.getElementById('ceo-objects').innerHTML = objects.length
+    ? objects.map(o=>{
+        const name=o.Name||o.name||o.Objekt||o.objekt||'–';
+        const addr=o.Adresse||o.adresse||'';
+        const gew=o.Gewerke||o.gewerke||'';
+        const gewArr=typeof gew==='string'?gew.split(',').map(g=>g.trim()).filter(Boolean):(Array.isArray(gew)?gew:[]);
+        return `<div class="obj-card">
+        <div class="obj-name">${name}</div>
+        <div class="obj-loc">${addr}</div>
+        <div class="obj-badges">${gewArr.map(g=>`<span class="obj-badge">${g}</span>`).join('')}</div>
+      </div>`;}).join('')
+    : '<div class="card" style="text-align:center;color:var(--txt2)">Keine Objekte geladen</div>';
+
+  // overview detail (API: Bemerkung, diffTage, ampel)
+  const topItems=wartung.slice(0,4);
+  document.getElementById('ov-ceo-detail').innerHTML = topItems.length
+    ? `<table class="tbl"><thead><tr><th>Aufgabe</th><th>Status</th><th>Tage</th></tr></thead><tbody>
+      ${topItems.map(w=>{
+        const tage=w.diffTage!=null?w.diffTage:'–';
+        const status=w.ampel||w.Status||'–';
+        return `<tr><td>${w.Bemerkung||w.Gewerk||w.bemerkung||'–'}</td>
+          <td><span class="pill ${pillClass(status)}">${status}</span></td>
+          <td>${tage}</td></tr>`;
+      }).join('')}</tbody></table>`
+    : '<div style="text-align:center;color:var(--txt2);padding:12px">Keine Wartungseinträge</div>';
+
+  // full table (API: Bemerkung, Objekt, ampel, diffTage)
+  document.getElementById('ceo-tbody').innerHTML = wartung.map(w=>{
+    const tage=w.diffTage!=null?w.diffTage:'–';
+    const status=w.ampel||w.Status||'–';
+    return `<tr><td>${w.Bemerkung||w.Gewerk||'–'}</td>
+      <td>${w.Objekt||w.objekt||'–'}</td>
+      <td><span class="pill ${pillClass(status)}">${status}</span></td>
+      <td style="font-weight:700">${tage}</td></tr>`;
+  }).join('') || '<tr><td colspan="4" style="text-align:center;color:var(--txt2)">Keine Daten</td></tr>';
+}
+
+// ── FAMILY RENDER ──
+function renderFamily(cal,tasks){
+  const now=new Date();
+  const todayStr=now.toISOString().slice(0,10);
+  // API liefert {events:[...]} statt direktem Array
+  const rawEvents=Array.isArray(cal)?cal:(cal&&cal.events?cal.events:[]);
+  // Datum aus "from" + "tf" bauen (API: from="2026-03-24", tf="08:00")
+  const events=rawEvents.map(e=>{
+    const dt=e.from&&e.tf?e.from+'T'+e.tf:e.from||'';
+    return {...e,_dt:dt,_date:e.from||''};
+  }).sort((a,b)=>new Date(a._dt)-new Date(b._dt));
+
+  const today=events.filter(e=>e._date===todayStr);
+
+  document.getElementById('ov-events').textContent=today.length;
+
+  function renderEvent(e,showDate){
+    return `<div class="ev">
+      <div class="ev-stripe" style="background:${personColor(e.person||'')}"></div>
+      <div class="ev-body"><div class="ev-ttl">${e.title||'–'}</div>
+        <div class="ev-meta">${e.person||''}${showDate?' · '+fmtDate(e._dt):''}</div></div>
+      <div class="ev-time">${e.tf||''}</div>
+    </div>`;
+  }
+
+  // today events
+  document.getElementById('fam-today').innerHTML = `<div class="card-label">📅 Heute – ${today.length} Termine</div>`
+    + (today.length ? today.map(e=>renderEvent(e,false)).join('')
+    : '<div style="color:var(--txt2);padding:12px;font-size:.85rem">Keine Termine heute</div>');
+
+  // upcoming 7 days
+  const weekEnd=new Date(now);weekEnd.setDate(weekEnd.getDate()+7);
+  const upcoming=events.filter(e=>{
+    const d=new Date(e._dt||e._date);
+    return d>now && d<=weekEnd;
+  }).slice(0,12);
+
+  document.getElementById('fam-upcoming').innerHTML = upcoming.length
+    ? upcoming.map(e=>renderEvent(e,true)).join('')
+    : '<div style="color:var(--txt2);padding:12px;font-size:.85rem">Keine kommenden Termine</div>';
+
+  // overview detail
+  document.getElementById('ov-fam-detail').innerHTML = today.concat(upcoming).slice(0,5).map(e=>renderEvent(e,true)).join('')
+    || '<div style="color:var(--txt2);padding:12px;font-size:.85rem">Keine Termine</div>';
+
+  // tasks (API liefert {tasks:[...]} mit titel, faelligAm, prioritaet)
+  const taskList=Array.isArray(tasks)?tasks:(tasks&&tasks.tasks?tasks.tasks:[]);
+  document.getElementById('fam-tasks').innerHTML = `<div class="card-label">📝 Pam Tasks – ${taskList.length}</div>`
+    + (taskList.length ? taskList.slice(0,8).map(t=>{
+      const isDone=(t.prioritaet||'').toLowerCase().includes('erledigt');
+      const isOverdue=(t.prioritaet||'').toLowerCase().includes('ueberfaellig');
+      return `<div class="task">
+        <div class="task-check ${isDone?'done':''}">${isDone?'✓':''}</div>
+        <div class="task-body"><div class="task-ttl">${t.titel||'–'}</div>
+          <div class="task-due">${t.faelligAm||''}${isOverdue?' · <span style="color:var(--red)">überfällig</span>':''}</div></div>
+      </div>`;
+    }).join('') : '<div style="color:var(--txt2);padding:12px;font-size:.85rem">Keine Tasks</div>');
+}
+
+// ── SMART HOME (Home Assistant via lokalen Proxy) ──
+// Der lokale server.py leitet /ha-api/* an Home Assistant weiter (kein CORS-Problem)
+const HA_PROXY = window.location.origin + '/ha-api';
+
+const PLUGS_CONFIG = [
+  {id:'geschirrspuler', name:'Geschirrspueler', icon:'🍽️', switchId:'switch.geschirrspuler_steckdose_1', powerId:'sensor.geschirrspuler_leistung'},
+  {id:'kuhlschrank', name:'Kuehlschrank', icon:'❄️', switchId:'switch.kuhlschrank_steckdose_1', powerId:'sensor.kuhlschrank_leistung'},
+  {id:'nachteinspeisung', name:'Nachteinspeisung (153W fest)', icon:'🌙', switchId:'switch.nachteinspeisung_steckdose_1', powerId:null, fixedPower:153},
+  {id:'office_dach', name:'Office Dach', icon:'💻', switchId:'switch.office_dach_steckdose_1', powerId:'sensor.office_dach_leistung'},
+  {id:'glotze', name:'Glotze (Wohnzimmer)', icon:'📺', switchId:'switch.glotze_steckdose_1', powerId:null},
+  {id:'fernseher_dach', name:'Fernseher Dach', icon:'📺', switchId:'switch.fernseher_dach_steckdose', powerId:null},
+  {id:'trockner', name:'Trockner', icon:'👕', switchId:'switch.trockner_steckdose_1', powerId:null},
+  {id:'waschmaschine', name:'Waschmaschine', icon:'🧺', switchId:'switch.waschmaschine_steckdose_1', powerId:null},
+  {id:'batterie_lader', name:'Batterie Lader Schuppen', icon:'🔋', switchId:'switch.batterie_lader_schuppen_schalter_1', powerId:null}
+];
+
+async function fetchHA(){
+  try{
+    const r=await fetch(HA_PROXY+'/states',{cache:'no-store'});
+    if(!r.ok)throw new Error(r.status);
+    return await r.json();
+  }catch(e){console.warn('HA fetch error:',e);return null;}
+}
+
+function haEntity(states,entityId){
+  if(!states)return{state:'unavailable',attributes:{}};
+  return states.find(e=>e.entity_id===entityId)||{state:'unavailable',attributes:{}};
+}
+
+function haVal(states,entityId){
+  const v=parseFloat(haEntity(states,entityId).state);
+  return isNaN(v)?null:v;
+}
+
+async function togglePlug(switchId){
+  const entity=haEntity(DATA.ha,switchId);
+  const action=entity.state==='on'?'turn_off':'turn_on';
+  try{
+    await fetch(HA_PROXY+'/services/switch/'+action,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({entity_id:switchId})
+    });
+    setTimeout(loadSmartHome,1000);
+  }catch(e){console.warn('Toggle error:',e);}
+}
+
+function renderSmartHome(states){
+  if(!states){
+    const isLocal=window.location.hostname==='localhost'||window.location.hostname==='127.0.0.1';
+    const msg=isLocal
+      ?'Home Assistant nicht erreichbar. Ist HA eingeschaltet?'
+      :'Smart Home nur lokal verfuegbar.<br>Oeffne <a href="http://localhost:8000/command-center.html" style="color:var(--blue)">localhost:8000/command-center.html</a> und starte vorher den "Command Center" Shortcut auf dem Desktop.';
+    document.getElementById('sh-plugs').innerHTML=`<div class="card" style="grid-column:1/-1;text-align:center;color:var(--txt2);padding:30px">${msg}</div>`;
+    document.getElementById('ov-sh-detail').innerHTML=`<div style="color:var(--txt2);padding:12px;font-size:.85rem">${msg}</div>`;
+    document.getElementById('ov-consumption').textContent='–';
+    return;
+  }
+
+  // Axpert Daten
+  const axPV=haVal(states,'sensor.axpert_pv_power');
+  const axBatt=haVal(states,'sensor.axpert_battery_power');
+  const axGrid=haVal(states,'sensor.axpert_grid_power');
+  const axLoad=haVal(states,'sensor.axpert_load_power');
+  const axBattV=haVal(states,'sensor.axpert_battery_voltage');
+  const axGridV=haVal(states,'sensor.axpert_grid_voltage');
+  const axPVenergy=haVal(states,'sensor.axpert_pv_energy');
+  const axBattIn=haVal(states,'sensor.axpert_battery_energy_in');
+  const axBattOut=haVal(states,'sensor.axpert_battery_energy_out');
+  const axGridIn=haVal(states,'sensor.axpert_grid_energy_in');
+  const axLoadE=haVal(states,'sensor.axpert_load_energy');
+
+  // Energiefluss
+  // Axpert: negativ = Laden/Einspeisung, positiv = Entladen/Bezug
+  document.getElementById('sh-pv-power').textContent=(axPV!=null?axPV:'–')+'W';
+  const battEl=document.getElementById('sh-batt-power');
+  if(axBatt!=null){
+    const battEntladen=axBatt<0; // Axpert: negativ = Entladen, positiv = Laden
+    battEl.textContent=Math.abs(axBatt)+'W';
+    battEl.className='card-val '+(battEntladen?'glow-orange':'glow-green');
+    battEl.nextElementSibling.textContent=battEntladen?'Entladen':'Laden';
+  } else { battEl.textContent='–'; }
+  document.getElementById('sh-load-power').textContent=(axLoad!=null?axLoad:'–')+'W';
+  const gridEl=document.getElementById('sh-grid-power');
+  if(axGrid!=null){
+    const gridBezug=axGrid>0; // positiv = Bezug vom Netz
+    gridEl.textContent=Math.abs(axGrid)+'W';
+    gridEl.className='card-val '+(gridBezug?'glow-red':'glow-green');
+    gridEl.nextElementSibling.textContent=gridBezug?'Bezug':'Einspeisung';
+  } else { gridEl.textContent='0W'; gridEl.nextElementSibling.textContent='Kein Bezug'; }
+
+  // Axpert Stats
+  document.getElementById('sh-axpert-stats').innerHTML=`
+    <div class="card"><div class="card-icon">☀️</div><div class="card-label">PV Gesamt</div>
+      <div class="card-val glow-solar">${axPVenergy!=null?axPVenergy.toFixed(0):'–'}</div><div class="card-sub">kWh erzeugt</div></div>
+    <div class="card"><div class="card-icon">🔋</div><div class="card-label">Batterie</div>
+      <div class="card-val glow-green">${axBattV!=null?axBattV.toFixed(1):'–'}V</div>
+      <div class="card-sub">Rein: ${axBattIn!=null?axBattIn.toFixed(0):'–'} · Raus: ${axBattOut!=null?axBattOut.toFixed(0):'–'} kWh</div></div>
+    <div class="card"><div class="card-icon">🔌</div><div class="card-label">Netz Bezug</div>
+      <div class="card-val glow-blue">${axGridIn!=null?axGridIn.toFixed(1):'–'}</div><div class="card-sub">kWh bezogen</div></div>
+    <div class="card"><div class="card-icon">🏠</div><div class="card-label">Verbrauch</div>
+      <div class="card-val glow-orange">${axLoadE!=null?axLoadE.toFixed(1):'–'}</div><div class="card-sub">kWh heute</div></div>`;
+
+  // Steckdosen
+  const plugs=PLUGS_CONFIG.map(p=>{
+    const sw=haEntity(states,p.switchId);
+    const sensorPower=p.powerId?haVal(states,p.powerId):null;
+    // fixedPower: fester Wert wenn Steckdose an, Sensor liefert Unsinn
+    const power=p.fixedPower?(sw.state==='on'?p.fixedPower:0):sensorPower;
+    return {...p, status:sw.state, leistung:power, hat_messung:!!(p.powerId||p.fixedPower)};
+  });
+
+  const totalW=plugs.reduce((s,p)=>s+(p.leistung||0),0);
+  const activeCount=plugs.filter(p=>p.status==='on').length;
+  const offlineCount=plugs.filter(p=>p.status==='unavailable').length;
+
+  // Uebersichts-Karten aktualisieren
+  document.getElementById('ov-consumption').textContent=totalW.toFixed(0)+'W';
+
+  // Badge
+  if(offlineCount>0){
+    const b=document.getElementById('sh-badge');
+    b.style.display='inline';b.textContent=offlineCount;
+  }
+
+  // Uebersicht Smart Home Mini-Karte
+  document.getElementById('ov-sh-detail').innerHTML=`
+    <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:center">
+      <div><span style="font-size:.72rem;color:var(--txt2)">Steckdosen:</span> <strong>${activeCount}</strong> an / <strong>${plugs.length}</strong> gesamt</div>
+      <div><span style="font-size:.72rem;color:var(--txt2)">Verbrauch:</span> <strong style="color:var(--blue)">${totalW.toFixed(0)}W</strong></div>
+      <div><span style="font-size:.72rem;color:var(--txt2)">Batterie:</span> <strong style="color:var(--green)">${axBattV!=null?axBattV.toFixed(1)+'V':'–'}</strong></div>
+      <div><span style="font-size:.72rem;color:var(--txt2)">Netz:</span> <strong>${axGrid!=null?axGrid+'W':'–'}</strong></div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+      ${plugs.slice(0,6).map(p=>`<div style="display:flex;align-items:center;gap:6px;padding:6px 12px;
+        background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;font-size:.75rem">
+        <div class="plug-status ${p.status}"></div>
+        <span>${p.icon} ${p.name}</span>
+        ${p.leistung!=null?`<strong style="color:var(--blue)">${p.leistung}W</strong>`:''}
+      </div>`).join('')}
+    </div>`;
+
+  // Volle Steckdosen-Liste
+  document.getElementById('sh-plugs').innerHTML=plugs.map(p=>{
+    const isOn=p.status==='on';
+    const isOff=p.status==='off';
+    const isUnavail=p.status==='unavailable';
+    const powerTxt=p.leistung!=null?p.leistung.toFixed(0)+'W':'–';
+    const powerColor=p.leistung>100?'var(--orange)':p.leistung>0?'var(--blue)':'var(--txt2)';
+    return `<div class="plug-card">
+      <div class="plug-icon">${p.icon}</div>
+      <div class="plug-info">
+        <div class="plug-name">${p.name}</div>
+        <div class="plug-power" style="color:${powerColor}">${p.hat_messung?powerTxt:''}</div>
+        <div class="plug-sub">${isUnavail?'Offline':isOn?'Eingeschaltet':'Ausgeschaltet'}${p.hat_messung?'':' · Keine Messung'}</div>
+      </div>
+      <div class="plug-status ${p.status}"></div>
+      ${!isUnavail?`<button class="plug-toggle ${isOn?'is-on':''}" onclick="togglePlug('${p.switchId}')">${isOn?'AUS':'EIN'}</button>`
+        :'<span style="font-size:.68rem;color:var(--red)">Offline</span>'}
+    </div>`;
+  }).join('');
+}
+
+async function loadSmartHome(){
+  const states=await fetchHA();
+  DATA.ha=states;
+  renderSmartHome(states);
+}
+
+// ── LOAD ALL ──
+async function loadAll(){
+  const [pv,ceo,cal,tasks] = await Promise.all([
+    fetchJSON(API.pv),
+    fetchJSON(API.ceo),
+    fetchJSON(API.cal),
+    fetchJSON(API.tasks)
+  ]);
+  DATA={...DATA,pv,ceo,cal,tasks};
+  renderPV(pv);
+  renderCEO(ceo);
+  renderFamily(cal,tasks);
+}
+
+loadAll();
+loadSmartHome();
+setInterval(loadAll, 60000);
+setInterval(loadSmartHome, 15000); // Smart Home alle 15 Sek
+</script>
+</body>
+</html>

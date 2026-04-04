@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Arbeitszettel — SHK-Betrieb</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0c1222;--surface:rgba(255,255,255,.04);--surface-hover:rgba(255,255,255,.07);
+  --border:rgba(255,255,255,.08);--border-focus:rgba(6,182,212,.5);
+  --text:#e2e8f0;--text-muted:#64748b;--text-dim:#475569;
+  --accent:#06b6d4;--accent2:#3b82f6;--accent3:#8b5cf6;
+  --danger:#ef4444;--success:#22c55e;
+  --radius:10px;--radius-lg:14px;
+  --font:'DM Sans',system-ui,sans-serif;--mono:'JetBrains Mono',monospace;
+}
+html{font-size:15px;-webkit-tap-highlight-color:transparent}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100dvh;
+  background-image:
+    radial-gradient(ellipse 80% 60% at 20% 0%,rgba(6,182,212,.08),transparent),
+    radial-gradient(ellipse 60% 50% at 80% 100%,rgba(59,130,246,.06),transparent);
+}
+/* === HEADER === */
+.header{background:linear-gradient(135deg,#06b6d4 0%,#3b82f6 50%,#8b5cf6 100%);
+  padding:1.4rem 1.2rem;position:sticky;top:0;z-index:100;
+  box-shadow:0 4px 30px rgba(6,182,212,.25);}
+.header-inner{max-width:720px;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
+.header h1{font-size:1.25rem;font-weight:700;color:#fff;letter-spacing:-.5px}
+.header .sub{font-size:.7rem;color:rgba(255,255,255,.75);margin-top:1px;letter-spacing:.5px;text-transform:uppercase}
+.badge{background:rgba(255,255,255,.2);backdrop-filter:blur(8px);padding:.35rem .9rem;border-radius:20px;font-size:.75rem;color:#fff;font-weight:600;font-family:var(--mono)}
+
+/* === CONTAINER === */
+.container{max-width:720px;margin:0 auto;padding:1rem 1rem 6rem}
+
+/* === SECTION === */
+.section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;margin-bottom:1rem;
+  animation:fadeUp .4s ease both}
+.section:nth-child(2){animation-delay:.05s}
+.section:nth-child(3){animation-delay:.1s}
+.section:nth-child(4){animation-delay:.15s}
+.section:nth-child(5){animation-delay:.2s}
+.section:nth-child(6){animation-delay:.25s}
+.section:nth-child(7){animation-delay:.3s}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+.section-head{display:flex;align-items:center;gap:.5rem;margin-bottom:1rem}
+.section-num{background:linear-gradient(135deg,var(--accent),var(--accent2));width:1.7rem;height:1.7rem;border-radius:.5rem;
+  display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:#fff;flex-shrink:0}
+.section-title{font-size:1rem;font-weight:600;color:var(--text)}
+
+/* === FORM FIELDS === */
+.grid{display:grid;gap:.75rem}
+.grid-2{grid-template-columns:1fr 1fr}
+.grid-4{grid-template-columns:1fr 1fr 1fr 1fr}
+.full{grid-column:1/-1}
+@media(max-width:500px){.grid-2,.grid-4{grid-template-columns:1fr 1fr}.grid-4 .field:nth-child(n+3){}}
+
+.field label{display:block;font-size:.65rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:.3rem;font-weight:500}
+.field input,.field select,.field textarea{
+  width:100%;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:var(--radius);
+  padding:.65rem .75rem;color:var(--text);font-family:var(--font);font-size:.9rem;
+  transition:border-color .2s,box-shadow .2s,background .2s;outline:none;appearance:none;-webkit-appearance:none}
+.field input:focus,.field select:focus,.field textarea:focus{
+  border-color:var(--border-focus);box-shadow:0 0 0 3px rgba(6,182,212,.12);background:rgba(255,255,255,.08)}
+.field input::placeholder,.field textarea::placeholder{color:var(--text-dim);font-style:italic}
+.field select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2306b6d4' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right .75rem center;padding-right:2rem;cursor:pointer}
+.field select option{background:#1e293b;color:var(--text)}
+.field textarea{resize:vertical;min-height:5rem;line-height:1.5}
+.field input[type="date"],.field input[type="time"]{cursor:pointer}
+.field input[type="date"]::-webkit-calendar-picker-indicator,
+.field input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(.6) sepia(1) saturate(3) hue-rotate(150deg);cursor:pointer}
+
+/* === TIME SUMMARY === */
+.time-summary{display:flex;justify-content:space-around;flex-wrap:wrap;gap:.5rem;
+  margin-top:.75rem;padding:.75rem 1rem;
+  background:linear-gradient(90deg,rgba(6,182,212,.1),rgba(59,130,246,.1),rgba(139,92,246,.1));
+  border:1px solid rgba(6,182,212,.2);border-radius:var(--radius)}
+.time-summary .ts-item{text-align:center;font-size:.75rem}
+.time-summary .ts-icon{font-size:1rem;display:block;margin-bottom:.15rem}
+.time-summary .ts-label{color:var(--text-muted)}
+.time-summary .ts-val{color:var(--text);font-weight:700;font-family:var(--mono);font-size:.85rem}
+
+/* === CHIPS === */
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.75rem}
+.chip{background:rgba(6,182,212,.12);border:1px solid rgba(6,182,212,.25);border-radius:20px;
+  padding:.35rem .8rem;font-size:.75rem;color:var(--accent);cursor:pointer;transition:all .2s;user-select:none}
+.chip:hover{background:rgba(6,182,212,.22);border-color:rgba(6,182,212,.45)}
+.chip.active{background:var(--accent);color:#000;font-weight:600}
+.chip-add{background:rgba(59,130,246,.12);border-color:rgba(59,130,246,.25);color:var(--accent2)}
+.chip-add:hover{background:rgba(59,130,246,.22)}
+
+/* === MATERIAL ROW === */
+.mat-row{display:grid;grid-template-columns:3fr 1fr 1fr 2rem;gap:.5rem;align-items:end;
+  background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:var(--radius);padding:.75rem;margin-bottom:.5rem}
+.mat-row .field label{font-size:.6rem}
+.mat-del{color:var(--danger);cursor:pointer;text-align:center;font-size:1.1rem;padding-bottom:.5rem;opacity:.5;transition:opacity .2s}
+.mat-del:hover{opacity:1}
+.mat-add{border:2px dashed rgba(6,182,212,.25);border-radius:var(--radius);padding:.7rem;text-align:center;
+  color:var(--accent);font-size:.85rem;cursor:pointer;transition:all .2s}
+.mat-add:hover{border-color:rgba(6,182,212,.5);background:rgba(6,182,212,.05)}
+
+/* === PHOTOS === */
+.photos{display:flex;flex-wrap:wrap;gap:.6rem}
+.photo-add{width:5rem;height:5rem;background:linear-gradient(135deg,rgba(6,182,212,.15),rgba(59,130,246,.15));
+  border:2px dashed rgba(6,182,212,.35);border-radius:var(--radius);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .2s}
+.photo-add:hover{border-color:var(--accent);background:rgba(6,182,212,.2)}
+.photo-add span{font-size:1.5rem}
+.photo-add small{font-size:.6rem;color:var(--accent);margin-top:.15rem}
+.photo-thumb{width:5rem;height:5rem;border-radius:var(--radius);overflow:hidden;position:relative;background:var(--surface)}
+.photo-thumb img{width:100%;height:100%;object-fit:cover}
+.photo-thumb .del{position:absolute;top:3px;right:3px;background:var(--danger);width:1.2rem;height:1.2rem;
+  border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.6rem;color:#fff;cursor:pointer;
+  opacity:0;transition:opacity .2s}
+.photo-thumb:hover .del{opacity:1}
+
+/* === SIGNATURE === */
+.sig-pad{background:#fff;border-radius:var(--radius);height:8rem;cursor:crosshair;touch-action:none}
+.sig-actions{display:flex;gap:.5rem;margin-top:.5rem}
+.sig-clear{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.25);border-radius:.5rem;
+  padding:.35rem .9rem;font-size:.75rem;color:var(--danger);cursor:pointer;font-family:var(--font);transition:all .2s}
+.sig-clear:hover{background:rgba(239,68,68,.25)}
+
+/* === BUTTONS === */
+.actions{display:flex;gap:.75rem;margin-top:1.5rem}
+.btn{flex:1;border:none;border-radius:var(--radius-lg);padding:1rem;cursor:pointer;font-family:var(--font);
+  font-size:.95rem;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:.2rem;transition:all .25s}
+.btn-primary{background:linear-gradient(135deg,#06b6d4,#3b82f6);color:#fff;box-shadow:0 4px 20px rgba(6,182,212,.3)}
+.btn-primary:hover{box-shadow:0 6px 28px rgba(6,182,212,.45);transform:translateY(-1px)}
+.btn-primary:active{transform:translateY(0)}
+.btn-secondary{background:var(--surface);border:1px solid var(--border);color:var(--text)}
+.btn-secondary:hover{background:var(--surface-hover)}
+.btn .btn-icon{font-size:1.3rem}
+
+/* === TOAST === */
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(120%);
+  background:var(--success);color:#fff;padding:.8rem 1.5rem;border-radius:var(--radius);font-weight:600;
+  font-size:.9rem;box-shadow:0 8px 30px rgba(0,0,0,.4);z-index:999;transition:transform .4s cubic-bezier(.22,1,.36,1)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+/* === PRINT === */
+@media print{
+  body{background:#fff!important;color:#000!important}
+  .header{background:#06b6d4!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .section{border-color:#ccc!important;background:#fff!important;break-inside:avoid}
+  .field input,.field select,.field textarea{border-color:#ccc!important;color:#000!important;background:#f8f8f8!important}
+  .actions,.sig-clear,.mat-del,.mat-add,.photo-add,.chips,.chip{display:none!important}
+  .sig-pad{border:1px solid #ccc}
+  .time-summary{background:#f0f9ff!important;border-color:#bae6fd!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .time-summary .ts-label,.time-summary .ts-val{color:#000!important}
+}
+
+@media(max-width:500px){
+  .grid-4{grid-template-columns:1fr 1fr}
+  .mat-row{grid-template-columns:1fr 1fr 1fr 2rem}
+  .time-summary{flex-direction:column;align-items:stretch}
+  .time-summary .ts-item{display:flex;justify-content:space-between;align-items:center}
+  .time-summary .ts-icon{display:inline;margin-right:.3rem;margin-bottom:0}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-inner">
+    <div>
+      <h1>Arbeitszettel</h1>
+      <div class="sub">SHK-Betrieb &middot; Digital</div>
+    </div>
+    <div class="badge" id="auftragsNr">NEU</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- 1. AUFTRAGSDATEN -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">1</div>
+      <div class="section-title">Auftragsdaten</div>
+    </div>
+    <div class="grid grid-2">
+      <div class="field">
+        <label>Datum</label>
+        <input type="date" id="datum">
+      </div>
+      <div class="field">
+        <label>Auftragsnummer</label>
+        <input type="text" id="auftragNr" placeholder="z.B. 2026-0347">
+      </div>
+      <div class="field">
+        <label>Mitarbeiter</label>
+        <select id="mitarbeiter">
+          <option value="">— bitte wählen —</option>
+          <option>Max Mustermann</option>
+          <option>Thomas Schulz</option>
+          <option>Andreas Weber</option>
+          <option>Stefan Braun</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Fahrzeug</label>
+        <select id="fahrzeug">
+          <option value="">— bitte wählen —</option>
+          <option>HH-SH 101 (Sprinter)</option>
+          <option>HH-SH 102 (Caddy)</option>
+          <option>HH-SH 103 (Transporter)</option>
+        </select>
+      </div>
+      <div class="field full">
+        <label>Auftragsart</label>
+        <select id="auftragsart">
+          <option value="">— bitte wählen —</option>
+          <option>Wartung</option>
+          <option>Reparatur</option>
+          <option>Neuinstallation</option>
+          <option>Notdienst</option>
+          <option>Kundendienst</option>
+          <option>Sonstiges</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. KUNDENDATEN -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">2</div>
+      <div class="section-title">Kundendaten</div>
+    </div>
+    <div class="grid grid-2">
+      <div class="field full">
+        <label>Kundenname</label>
+        <input type="text" id="kunde" placeholder="z.B. Familie Schmidt">
+      </div>
+      <div class="field full">
+        <label>Adresse</label>
+        <input type="text" id="adresse" placeholder="Straße Nr., PLZ Ort">
+      </div>
+      <div class="field">
+        <label>Telefon</label>
+        <input type="tel" id="telefon" placeholder="040 / 123 456">
+      </div>
+      <div class="field">
+        <label>Ansprechpartner vor Ort</label>
+        <input type="text" id="ansprechpartner" placeholder="z.B. Herr Müller (Hausmeister)">
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. ARBEITSZEITEN -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">3</div>
+      <div class="section-title">Arbeitszeiten</div>
+    </div>
+    <div class="grid grid-4">
+      <div class="field">
+        <label>Anfahrt ab</label>
+        <input type="time" id="anfahrt">
+      </div>
+      <div class="field">
+        <label>Ankunft</label>
+        <input type="time" id="ankunft">
+      </div>
+      <div class="field">
+        <label>Ende</label>
+        <input type="time" id="ende">
+      </div>
+      <div class="field">
+        <label>Pause</label>
+        <select id="pause">
+          <option value="0">Keine</option>
+          <option value="15">15 Min.</option>
+          <option value="30" selected>30 Min.</option>
+          <option value="45">45 Min.</option>
+          <option value="60">60 Min.</option>
+        </select>
+      </div>
+    </div>
+    <div class="time-summary">
+      <div class="ts-item"><span class="ts-icon">🚗</span><span class="ts-label">Fahrzeit</span><br><span class="ts-val" id="fahrzeit">—</span></div>
+      <div class="ts-item"><span class="ts-icon">🔧</span><span class="ts-label">Arbeitszeit</span><br><span class="ts-val" id="arbeitszeit">—</span></div>
+      <div class="ts-item"><span class="ts-icon">⏱️</span><span class="ts-label">Gesamt</span><br><span class="ts-val" id="gesamtzeit">—</span></div>
+    </div>
+  </div>
+
+  <!-- 4. AUSGEFÜHRTE ARBEITEN -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">4</div>
+      <div class="section-title">Ausgeführte Arbeiten</div>
+    </div>
+    <div class="chips" id="chips">
+      <span class="chip" data-text="Wartung Therme/Heizung">Wartung Therme</span>
+      <span class="chip" data-text="Rohrbruch repariert">Rohrbruch</span>
+      <span class="chip" data-text="Heizung entlüftet">Heizung entlüften</span>
+      <span class="chip" data-text="WC / Armatur repariert">WC / Armatur</span>
+      <span class="chip" data-text="Abgasmessung durchgeführt">Abgasmessung</span>
+      <span class="chip" data-text="Leckortung">Leckortung</span>
+    </div>
+    <div class="field">
+      <textarea id="arbeiten" placeholder="Beschreibe die ausgeführten Arbeiten...&#10;z.B. Therme Viessmann Vitodens 200 gewartet&#10;– Brenner gereinigt&#10;– Kondensatablauf geprüft"></textarea>
+    </div>
+  </div>
+
+  <!-- 5. MATERIAL -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">5</div>
+      <div class="section-title">Material</div>
+    </div>
+    <div id="materialList">
+      <div class="mat-row">
+        <div class="field"><label>Bezeichnung</label><input type="text" placeholder="z.B. Dichtung DN20"></div>
+        <div class="field"><label>Menge</label><input type="number" placeholder="1" min="0" step="0.5"></div>
+        <div class="field"><label>Einheit</label>
+          <select><option>Stk.</option><option>Meter</option><option>Liter</option><option>kg</option><option>Satz</option><option>Pauschal</option></select>
+        </div>
+        <div class="mat-del" onclick="delMat(this)" title="Entfernen">✕</div>
+      </div>
+    </div>
+    <div class="mat-add" onclick="addMat()">+ Material hinzufügen</div>
+  </div>
+
+  <!-- 6. FOTOS -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">6</div>
+      <div class="section-title">Fotos</div>
+    </div>
+    <div class="photos" id="photoList">
+      <label class="photo-add">
+        <span>📷</span><small>Foto</small>
+        <input type="file" accept="image/*" capture="environment" multiple hidden onchange="addPhotos(this)">
+      </label>
+    </div>
+  </div>
+
+  <!-- 7. UNTERSCHRIFT -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">7</div>
+      <div class="section-title">Unterschrift Kunde</div>
+    </div>
+    <canvas class="sig-pad" id="sigCanvas"></canvas>
+    <div class="sig-actions">
+      <button class="sig-clear" onclick="clearSig()">Unterschrift löschen</button>
+    </div>
+  </div>
+
+  <!-- ACTIONS -->
+  <div class="actions">
+    <button class="btn btn-primary" onclick="sendEmail()">
+      <span class="btn-icon">📧</span> Per E-Mail senden
+    </button>
+    <button class="btn btn-secondary" onclick="window.print()">
+      <span class="btn-icon">🖨️</span> Drucken
+    </button>
+  </div>
+
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// === DATUM HEUTE SETZEN ===
+document.getElementById('datum').valueAsDate = new Date();
+
+// === AUFTRAGSNUMMER BADGE ===
+document.getElementById('auftragNr').addEventListener('input', function(){
+  document.getElementById('auftragsNr').textContent = this.value || 'NEU';
+});
+
+// === ZEITBERECHNUNG ===
+['anfahrt','ankunft','ende','pause'].forEach(id=>{
+  document.getElementById(id).addEventListener('change', calcTime);
+});
+
+function calcTime(){
+  const t=s=>{ const p=document.getElementById(s).value.split(':'); return p.length===2?parseInt(p[0])*60+parseInt(p[1]):null; };
+  const anfahrt=t('anfahrt'), ankunft=t('ankunft'), ende=t('ende');
+  const pause=parseInt(document.getElementById('pause').value)||0;
+  const fmt=m=>{ if(m==null||m<0) return '—'; const h=Math.floor(m/60); return h+':'+(m%60).toString().padStart(2,'0'); };
+
+  let fahrzeit=null, arbeitszeit=null, gesamt=null;
+  if(anfahrt!=null && ankunft!=null) fahrzeit=ankunft-anfahrt;
+  if(ankunft!=null && ende!=null) arbeitszeit=Math.max(0,(ende-ankunft)-pause);
+  if(anfahrt!=null && ende!=null) gesamt=Math.max(0,(ende-anfahrt)-pause);
+
+  document.getElementById('fahrzeit').textContent=fmt(fahrzeit);
+  document.getElementById('arbeitszeit').textContent=fmt(arbeitszeit);
+  document.getElementById('gesamtzeit').textContent=fmt(gesamt);
+}
+
+// === CHIPS ===
+document.querySelectorAll('.chip').forEach(c=>{
+  c.addEventListener('click', function(){
+    this.classList.toggle('active');
+    const ta=document.getElementById('arbeiten');
+    const txt=this.dataset.text;
+    if(this.classList.contains('active')){
+      ta.value = ta.value ? ta.value+'\n'+txt : txt;
+    } else {
+      ta.value = ta.value.split('\n').filter(l=>l!==txt).join('\n');
+    }
+  });
+});
+
+// === MATERIAL ===
+function addMat(){
+  const row=document.createElement('div');
+  row.className='mat-row';
+  row.innerHTML=`
+    <div class="field"><label>Bezeichnung</label><input type="text" placeholder="z.B. Kupferrohr 15mm"></div>
+    <div class="field"><label>Menge</label><input type="number" placeholder="1" min="0" step="0.5"></div>
+    <div class="field"><label>Einheit</label>
+      <select><option>Stk.</option><option>Meter</option><option>Liter</option><option>kg</option><option>Satz</option><option>Pauschal</option></select>
+    </div>
+    <div class="mat-del" onclick="delMat(this)" title="Entfernen">✕</div>`;
+  row.style.animation='fadeUp .3s ease both';
+  document.getElementById('materialList').appendChild(row);
+}
+
+function delMat(el){
+  const row=el.closest('.mat-row');
+  const list=document.getElementById('materialList');
+  if(list.children.length>1){ row.style.opacity='0'; row.style.transform='scale(.95)'; setTimeout(()=>row.remove(),200); }
+}
+
+// === FOTOS ===
+function addPhotos(input){
+  const list=document.getElementById('photoList');
+  Array.from(input.files).forEach(f=>{
+    const reader=new FileReader();
+    reader.onload=e=>{
+      const div=document.createElement('div');
+      div.className='photo-thumb';
+      div.innerHTML=`<img src="${e.target.result}"><div class="del" onclick="this.parentElement.remove()">✕</div>`;
+      div.style.animation='fadeUp .3s ease both';
+      list.insertBefore(div, list.lastElementChild);
+    };
+    reader.readAsDataURL(f);
+  });
+  input.value='';
+}
+
+// === UNTERSCHRIFT (Canvas) ===
+const canvas=document.getElementById('sigCanvas');
+const ctx=canvas.getContext('2d');
+let signing=false, sigEmpty=true;
+
+function resizeCanvas(){
+  const rect=canvas.getBoundingClientRect();
+  const dpr=window.devicePixelRatio||1;
+  canvas.width=rect.width*dpr;
+  canvas.height=rect.height*dpr;
+  ctx.scale(dpr,dpr);
+  ctx.strokeStyle='#1e293b';
+  ctx.lineWidth=2;
+  ctx.lineCap='round';
+  ctx.lineJoin='round';
+}
+resizeCanvas();
+window.addEventListener('resize',resizeCanvas);
+
+function getPos(e){
+  const r=canvas.getBoundingClientRect();
+  const t=e.touches?e.touches[0]:e;
+  return{x:t.clientX-r.left, y:t.clientY-r.top};
+}
+
+canvas.addEventListener('pointerdown',e=>{signing=true;sigEmpty=false;const p=getPos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);e.preventDefault();});
+canvas.addEventListener('pointermove',e=>{if(!signing)return;const p=getPos(e);ctx.lineTo(p.x,p.y);ctx.stroke();e.preventDefault();});
+canvas.addEventListener('pointerup',()=>signing=false);
+canvas.addEventListener('pointerleave',()=>signing=false);
+
+function clearSig(){ctx.clearRect(0,0,canvas.width,canvas.height);sigEmpty=true;}
+
+// === TOAST ===
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// === E-MAIL SENDEN ===
+function sendEmail(){
+  const datum=document.getElementById('datum').value;
+  const nr=document.getElementById('auftragNr').value;
+  const ma=document.getElementById('mitarbeiter').value;
+  const fz=document.getElementById('fahrzeug').value;
+  const art=document.getElementById('auftragsart').value;
+  const kunde=document.getElementById('kunde').value;
+  const adresse=document.getElementById('adresse').value;
+  const tel=document.getElementById('telefon').value;
+  const asp=document.getElementById('ansprechpartner').value;
+  const fahrzeit=document.getElementById('fahrzeit').textContent;
+  const arbeitszeit=document.getElementById('arbeitszeit').textContent;
+  const gesamt=document.getElementById('gesamtzeit').textContent;
+  const arbeiten=document.getElementById('arbeiten').value;
+
+  // Material sammeln
+  let material='';
+  document.querySelectorAll('.mat-row').forEach(row=>{
+    const inputs=row.querySelectorAll('input');
+    const select=row.querySelector('select');
+    if(inputs[0]?.value) material+=`- ${inputs[0].value}: ${inputs[1]?.value||''} ${select?.value||''}\n`;
+  });
+
+  const fmtDatum=datum?new Date(datum+'T00:00').toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'}):'';
+
+  const subject=`Arbeitszettel ${nr||'ohne Nr.'} — ${kunde||'Kunde'} — ${fmtDatum}`;
+  const body=`ARBEITSZETTEL
+================================
+Datum: ${fmtDatum}
+Auftragsnr.: ${nr}
+Mitarbeiter: ${ma}
+Fahrzeug: ${fz}
+Auftragsart: ${art}
+
+KUNDE
+--------------------------------
+Name: ${kunde}
+Adresse: ${adresse}
+Telefon: ${tel}
+Ansprechpartner: ${asp}
+
+ARBEITSZEITEN
+--------------------------------
+Fahrzeit: ${fahrzeit}
+Arbeitszeit: ${arbeitszeit}
+Gesamt: ${gesamt}
+
+AUSGEFÜHRTE ARBEITEN
+--------------------------------
+${arbeiten}
+
+MATERIAL
+--------------------------------
+${material||'Kein Material eingetragen'}
+
+================================
+Gesendet vom digitalen Arbeitszettel`;
+
+  window.location.href='mailto:info@fm-optimierer.de?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+  showToast('E-Mail wird vorbereitet...');
+}
+</script>
+</body>
+</html>

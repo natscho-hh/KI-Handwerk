@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KI im Handwerk – Mehr Aufträge. Weniger Papierkram.</title>
+  <meta name="description" content="Wir bringen Künstliche Intelligenz in Ihren Handwerksbetrieb. Automatisch mehr Anfragen, weniger Bürokratie – und mehr Zeit für das Wesentliche." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --orange: #f97316;
+      --orange-dark: #ea580c;
+      --orange-light: #fed7aa;
+      --dark:  #080d1a;
+      --dark2: #0f1624;
+      --dark3: #1a2236;
+      --dark4: #212d42;
+      --gray:  #64748b;
+      --gray2: #94a3b8;
+      --white: #ffffff;
+      --green: #22c55e;
+      --blue:  #3b82f6;
+      --radius: 14px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--dark);
+      color: var(--white);
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ── CURSOR ── */
+    .cursor {
+      width: 10px; height: 10px;
+      background: var(--orange);
+      border-radius: 50%;
+      position: fixed; pointer-events: none;
+      z-index: 9999;
+      transition: transform 0.08s ease;
+      mix-blend-mode: screen;
+    }
+    .cursor-ring {
+      width: 36px; height: 36px;
+      border: 1px solid rgba(249,115,22,0.5);
+      border-radius: 50%;
+      position: fixed; pointer-events: none;
+      z-index: 9998;
+      transition: all 0.14s ease;
+    }
+    a, button { cursor: none; }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 16px 48px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(8,13,26,0.6);
+      backdrop-filter: blur(28px);
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      transition: all 0.3s;
+    }
+    nav.scrolled {
+      background: rgba(8,13,26,0.95);
+      box-shadow: 0 4px 40px rgba(0,0,0,0.5);
+    }
+    .logo {
+      font-size: 1.35rem; font-weight: 800; letter-spacing: -0.5px;
+      text-decoration: none; color: var(--white);
+    }
+    .logo span { color: var(--orange); }
+    nav ul { list-style: none; display: flex; gap: 28px; }
+    nav ul a {
+      color: rgba(255,255,255,0.6);
+      text-decoration: none; font-size: 0.875rem; font-weight: 500;
+      transition: color 0.2s; position: relative;
+    }
+    nav ul a::after {
+      content: ''; position: absolute; bottom: -4px; left: 0; right: 0;
+      height: 1px; background: var(--orange);
+      transform: scaleX(0); transition: transform 0.2s;
+    }
+    nav ul a:hover { color: var(--white); }
+    nav ul a:hover::after { transform: scaleX(1); }
+    .nav-cta {
+      background: var(--orange) !important; color: var(--white) !important;
+      padding: 10px 22px; border-radius: 8px; font-weight: 700 !important;
+      box-shadow: 0 0 24px rgba(249,115,22,0.35);
+      transition: all 0.2s !important;
+    }
+    .nav-cta:hover {
+      background: var(--orange-dark) !important;
+      box-shadow: 0 0 36px rgba(249,115,22,0.55) !important;
+      transform: translateY(-1px);
+    }
+    .nav-cta::after { display: none !important; }
+
+    /* ── HAMBURGER ── */
+    .hamburger {
+      display: none; flex-direction: column; gap: 5px;
+      background: none; border: none; padding: 6px;
+    }
+    .hamburger span {
+      display: block; width: 24px; height: 2px;
+      background: #fff; border-radius: 2px; transition: all 0.3s;
+    }
+    .hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(5px,5px); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px,-5px); }
+
+    .mobile-nav {
+      display: none; position: fixed; inset: 0;
+      background: rgba(8,13,26,0.98); backdrop-filter: blur(24px);
+      padding: 88px 24px 32px;
+      flex-direction: column; gap: 4px; z-index: 98;
+    }
+    .mobile-nav.open { display: flex; }
+    .mobile-nav a {
+      color: rgba(255,255,255,0.75); text-decoration: none;
+      font-size: 1.1rem; font-weight: 500;
+      padding: 15px 18px; border-radius: 12px; transition: all 0.2s;
+    }
+    .mobile-nav a:hover { background: rgba(255,255,255,0.07); color: #fff; }
+    .mobile-nav .mob-divider { height: 1px; background: rgba(255,255,255,0.08); margin: 8px 0; }
+    .mobile-nav .mob-cta {
+      background: var(--orange); color: #fff !important;
+      text-align: center; font-weight: 700; margin-top: 8px;
+      box-shadow: 0 4px 20px rgba(249,115,22,0.3); border-radius: 12px;
+    }
+
+    @media (max-width: 768px) {
+      nav ul { display: none; }
+      .hamburger { display: flex; }
+      nav { padding: 14px 20px; }
+    }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center;
+      padding: 120px 20px 80px;
+      position: relative; overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute; inset: 0; z-index: 0;
+      background:
+        radial-gradient(ellipse 900px 600px at 50% -10%, rgba(249,115,22,0.12) 0%, transparent 70%),
+        radial-gradient(ellipse 600px 400px at 80% 80%, rgba(59,130,246,0.06) 0%, transparent 60%);
+    }
+    .hero-grid {
+      position: absolute; inset: 0; z-index: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 30%, transparent 100%);
+    }
+    .hero-content { position: relative; z-index: 1; max-width: 820px; }
+
+    .badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(249,115,22,0.12);
+      border: 1px solid rgba(249,115,22,0.25);
+      border-radius: 50px; padding: 8px 18px;
+      font-size: 0.82rem; font-weight: 600;
+      color: var(--orange); margin-bottom: 28px;
+      animation: fadeDown 0.6s ease both;
+    }
+    .badge-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(1.3); }
+    }
+
+    .hero h1 {
+      font-size: clamp(2.4rem, 6vw, 4.2rem);
+      font-weight: 900; line-height: 1.1;
+      letter-spacing: -1.5px; margin-bottom: 22px;
+      animation: fadeDown 0.6s 0.1s ease both;
+    }
+    .hero h1 .hl { color: var(--orange); }
+    .hero h1 .hl2 {
+      background: linear-gradient(90deg, var(--orange), #fb923c);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    .hero-sub {
+      font-size: clamp(1rem, 2.5vw, 1.2rem);
+      color: var(--gray2); line-height: 1.65;
+      max-width: 600px; margin: 0 auto 40px;
+      animation: fadeDown 0.6s 0.2s ease both;
+    }
+
+    .hero-btns {
+      display: flex; flex-wrap: wrap; gap: 14px;
+      justify-content: center; margin-bottom: 52px;
+      animation: fadeDown 0.6s 0.3s ease both;
+    }
+    .btn-primary {
+      background: var(--orange); color: #fff;
+      padding: 16px 32px; border-radius: 10px;
+      font-weight: 700; font-size: 1rem;
+      text-decoration: none; border: none;
+      box-shadow: 0 0 32px rgba(249,115,22,0.4);
+      transition: all 0.2s;
+    }
+    .btn-primary:hover {
+      background: var(--orange-dark);
+      box-shadow: 0 0 48px rgba(249,115,22,0.6);
+      transform: translateY(-2px);
+    }
+    .btn-secondary {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: #fff; padding: 16px 32px; border-radius: 10px;
+      font-weight: 600; font-size: 1rem;
+      text-decoration: none; transition: all 0.2s;
+    }
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: rgba(255,255,255,0.2);
+      transform: translateY(-2px);
+    }
+
+    .hero-stats {
+      display: flex; flex-wrap: wrap; gap: 32px;
+      justify-content: center;
+      animation: fadeDown 0.6s 0.4s ease both;
+    }
+    .stat { text-align: center; }
+    .stat-num {
+      font-size: 2rem; font-weight: 900; color: var(--orange);
+      letter-spacing: -1px; display: block;
+    }
+    .stat-label { font-size: 0.8rem; color: var(--gray2); margin-top: 2px; }
+
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── LOGOS BAND ── */
+    .logos-band {
+      background: var(--dark2);
+      border-top: 1px solid rgba(255,255,255,0.04);
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      padding: 26px 40px;
+      display: flex; align-items: center;
+      justify-content: center; gap: 16px;
+      flex-wrap: wrap;
+    }
+    .logos-label {
+      font-size: 0.78rem; color: var(--gray); font-weight: 500;
+      white-space: nowrap; margin-right: 8px;
+    }
+    .trade-tag {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px; padding: 8px 16px;
+      font-size: 0.82rem; color: var(--gray2); font-weight: 500;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .trade-tag span { font-size: 1rem; }
+
+    /* ── SECTION BASICS ── */
+    section { padding: 96px 20px; }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .section-label {
+      display: inline-block;
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--orange);
+      margin-bottom: 14px;
+    }
+    .section-title {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800; letter-spacing: -0.8px;
+      line-height: 1.15; margin-bottom: 16px;
+    }
+    .section-sub {
+      font-size: 1.05rem; color: var(--gray2);
+      line-height: 1.65; max-width: 580px;
+    }
+    .section-header { margin-bottom: 56px; }
+
+    /* ── PROBLEME ── */
+    #probleme { background: var(--dark2); }
+    .problems-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    .problem-card {
+      background: var(--dark3);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: var(--radius);
+      padding: 28px; position: relative; overflow: hidden;
+      transition: border-color 0.3s;
+    }
+    .problem-card:hover { border-color: rgba(249,115,22,0.3); }
+    .problem-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0;
+      height: 2px; background: linear-gradient(90deg, var(--orange), transparent);
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .problem-card:hover::before { opacity: 1; }
+    .problem-icon {
+      font-size: 1.8rem; margin-bottom: 14px; display: block;
+    }
+    .problem-card h3 {
+      font-size: 1rem; font-weight: 700; margin-bottom: 8px;
+      color: var(--white);
+    }
+    .problem-card p { font-size: 0.88rem; color: var(--gray2); line-height: 1.6; }
+
+    /* ── WIE ES FUNKTIONIERT ── */
+    #wie { background: var(--dark); }
+    .steps { display: flex; flex-direction: column; gap: 0; }
+    .step {
+      display: grid; grid-template-columns: 56px 1fr;
+      gap: 24px; padding: 32px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      position: relative;
+    }
+    .step:last-child { border-bottom: none; }
+    .step-num {
+      width: 48px; height: 48px; border-radius: 50%;
+      background: rgba(249,115,22,0.12);
+      border: 2px solid rgba(249,115,22,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; font-weight: 800; color: var(--orange);
+      flex-shrink: 0; margin-top: 4px;
+    }
+    .step-body h3 {
+      font-size: 1.1rem; font-weight: 700; margin-bottom: 8px;
+    }
+    .step-body p { font-size: 0.92rem; color: var(--gray2); line-height: 1.65; }
+    .step-tag {
+      display: inline-block; margin-top: 10px;
+      background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.2);
+      border-radius: 50px; padding: 4px 12px;
+      font-size: 0.75rem; font-weight: 600; color: var(--green);
+    }
+
+    /* ── LEISTUNGEN ── */
+    #leistungen { background: var(--dark2); }
+    .leistungen-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+    }
+    .leistung-card {
+      background: var(--dark3);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: var(--radius); padding: 32px;
+      transition: all 0.3s;
+      position: relative; overflow: hidden;
+    }
+    .leistung-card:hover {
+      border-color: rgba(249,115,22,0.25);
+      transform: translateY(-4px);
+      box-shadow: 0 24px 48px rgba(0,0,0,0.3);
+    }
+    .leistung-icon {
+      width: 52px; height: 52px; border-radius: 12px;
+      background: rgba(249,115,22,0.12);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem; margin-bottom: 18px;
+    }
+    .leistung-card h3 {
+      font-size: 1.05rem; font-weight: 700; margin-bottom: 10px;
+    }
+    .leistung-card p { font-size: 0.88rem; color: var(--gray2); line-height: 1.65; }
+    .leistung-card ul {
+      list-style: none; margin-top: 16px; display: flex; flex-direction: column; gap: 8px;
+    }
+    .leistung-card ul li {
+      font-size: 0.84rem; color: var(--gray2);
+      display: flex; align-items: flex-start; gap: 8px;
+    }
+    .leistung-card ul li::before {
+      content: '✓'; color: var(--green); font-weight: 700;
+      flex-shrink: 0; margin-top: 1px;
+    }
+
+    /* ── WARUM WIR ── */
+    #warum { background: var(--dark); }
+    .warum-wrap {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center;
+    }
+    .warum-left .section-sub { max-width: 100%; margin-bottom: 32px; }
+    .warum-features { display: flex; flex-direction: column; gap: 18px; }
+    .warum-feat {
+      display: flex; gap: 16px; align-items: flex-start;
+    }
+    .warum-feat-icon {
+      width: 42px; height: 42px; border-radius: 10px; flex-shrink: 0;
+      background: rgba(249,115,22,0.1); border: 1px solid rgba(249,115,22,0.2);
+      display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+    }
+    .warum-feat-body h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 4px; }
+    .warum-feat-body p { font-size: 0.84rem; color: var(--gray2); line-height: 1.5; }
+
+    .warum-right {
+      background: var(--dark3);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 20px; padding: 36px;
+    }
+    .result-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .result-item:last-child { border-bottom: none; }
+    .result-label { font-size: 0.9rem; color: var(--gray2); }
+    .result-val {
+      font-size: 1.4rem; font-weight: 800; color: var(--orange);
+      letter-spacing: -0.5px;
+    }
+    .result-val.green { color: var(--green); }
+
+    @media (max-width: 900px) {
+      .warum-wrap { grid-template-columns: 1fr; gap: 40px; }
+    }
+
+    /* ── TESTIMONIALS ── */
+    #stimmen { background: var(--dark2); }
+    .testi-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+    }
+    .testi-card {
+      background: var(--dark3);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: var(--radius); padding: 28px;
+    }
+    .stars { color: var(--orange); font-size: 1rem; margin-bottom: 14px; letter-spacing: 2px; }
+    .testi-text {
+      font-size: 0.92rem; color: var(--gray2); line-height: 1.7;
+      margin-bottom: 20px; font-style: italic;
+    }
+    .testi-author { display: flex; align-items: center; gap: 12px; }
+    .testi-avatar {
+      width: 42px; height: 42px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--orange), var(--orange-dark));
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 0.9rem; color: #fff; flex-shrink: 0;
+    }
+    .testi-name { font-size: 0.88rem; font-weight: 700; }
+    .testi-job { font-size: 0.78rem; color: var(--gray); }
+
+    /* ── FAQ ── */
+    #faq { background: var(--dark); }
+    .faq-list { max-width: 740px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+    .faq-item {
+      background: var(--dark3);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: var(--radius); overflow: hidden;
+    }
+    .faq-question {
+      width: 100%; text-align: left;
+      background: none; border: none; color: var(--white);
+      padding: 22px 24px; font-size: 0.95rem; font-weight: 600;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      transition: color 0.2s;
+    }
+    .faq-question:hover { color: var(--orange); }
+    .faq-arrow {
+      font-size: 1.2rem; color: var(--orange); flex-shrink: 0;
+      transition: transform 0.3s;
+    }
+    .faq-item.open .faq-arrow { transform: rotate(45deg); }
+    .faq-answer {
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.35s ease, padding 0.3s;
+      padding: 0 24px;
+    }
+    .faq-item.open .faq-answer { max-height: 300px; padding: 0 24px 22px; }
+    .faq-answer p { font-size: 0.88rem; color: var(--gray2); line-height: 1.7; }
+
+    /* ── KONTAKT ── */
+    #kontakt {
+      background: var(--dark2);
+      position: relative; overflow: hidden;
+    }
+    #kontakt::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse 700px 400px at 50% 0%, rgba(249,115,22,0.08) 0%, transparent 70%);
+    }
+    .kontakt-wrap {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 64px;
+      position: relative; z-index: 1; align-items: start;
+    }
+    .kontakt-left .section-sub { max-width: 100%; margin-bottom: 32px; }
+    .kontakt-info { display: flex; flex-direction: column; gap: 16px; }
+    .info-item {
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+    .info-icon {
+      font-size: 1.1rem; width: 38px; height: 38px;
+      background: rgba(249,115,22,0.1); border-radius: 9px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .info-text { font-size: 0.88rem; color: var(--gray2); line-height: 1.5; }
+    .info-text strong { color: var(--white); display: block; font-size: 0.9rem; }
+
+    .contact-form {
+      background: var(--dark3);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 20px; padding: 36px;
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+    .form-group label { font-size: 0.82rem; font-weight: 600; color: rgba(255,255,255,0.7); }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px; padding: 13px 16px;
+      color: var(--white); font-size: 0.9rem; font-family: inherit;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: rgba(249,115,22,0.5);
+      background: rgba(249,115,22,0.04);
+    }
+    .form-group input::placeholder,
+    .form-group textarea::placeholder { color: rgba(255,255,255,0.25); }
+    .form-group select option { background: var(--dark3); }
+    .form-group textarea { resize: vertical; min-height: 100px; }
+    .form-submit {
+      width: 100%; padding: 15px; background: var(--orange); color: #fff;
+      border: none; border-radius: 10px; font-size: 1rem; font-weight: 700;
+      box-shadow: 0 0 28px rgba(249,115,22,0.35);
+      transition: all 0.2s; margin-top: 4px;
+    }
+    .form-submit:hover {
+      background: var(--orange-dark);
+      box-shadow: 0 0 44px rgba(249,115,22,0.55);
+      transform: translateY(-1px);
+    }
+    .form-note {
+      font-size: 0.75rem; color: var(--gray); text-align: center;
+      margin-top: 12px;
+    }
+    .form-success {
+      display: none; text-align: center; padding: 24px;
+    }
+    .form-success .success-icon { font-size: 2.5rem; margin-bottom: 12px; }
+    .form-success h3 { font-size: 1.1rem; margin-bottom: 8px; }
+    .form-success p { font-size: 0.88rem; color: var(--gray2); }
+
+    @media (max-width: 900px) {
+      .kontakt-wrap { grid-template-columns: 1fr; gap: 40px; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--dark); padding: 40px 20px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+    .footer-inner {
+      max-width: 1100px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 20px;
+    }
+    .footer-logo { font-size: 1.1rem; font-weight: 800; }
+    .footer-logo span { color: var(--orange); }
+    .footer-copy { font-size: 0.8rem; color: var(--gray); }
+    .footer-links { display: flex; gap: 20px; }
+    .footer-links a {
+      font-size: 0.8rem; color: var(--gray); text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--white); }
+
+    /* ── SCROLL REVEAL ── */
+    .reveal {
+      opacity: 0; transform: translateY(28px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+
+  <!-- Cursor -->
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <!-- Navigation -->
+  <nav id="navbar">
+    <a href="#" class="logo">KI<span>.</span>Handwerk</a>
+    <ul>
+      <li><a href="#probleme">Probleme</a></li>
+      <li><a href="#leistungen">Leistungen</a></li>
+      <li><a href="#warum">Vorteile</a></li>
+      <li><a href="#stimmen">Stimmen</a></li>
+      <li><a href="#faq">FAQ</a></li>
+      <li><a href="#kontakt" class="nav-cta">Jetzt anfragen</a></li>
+    </ul>
+    <button class="hamburger" id="hamburger" aria-label="Menü">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- Mobile Nav -->
+  <div class="mobile-nav" id="mobileNav">
+    <a href="#probleme" class="mob-link">Probleme</a>
+    <a href="#leistungen" class="mob-link">Leistungen</a>
+    <a href="#warum" class="mob-link">Vorteile</a>
+    <a href="#stimmen" class="mob-link">Stimmen</a>
+    <a href="#faq" class="mob-link">FAQ</a>
+    <div class="mob-divider"></div>
+    <a href="#kontakt" class="mob-link mob-cta">Jetzt anfragen →</a>
+  </div>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-grid"></div>
+    <div class="hero-content">
+      <div class="badge">
+        <span class="badge-dot"></span>
+        Jetzt verfügbar – KI für Ihren Betrieb
+      </div>
+      <h1>
+        Ihr Handwerk.<br>
+        <span class="hl2">Intelligenter automatisiert.</span>
+      </h1>
+      <p class="hero-sub">
+        Wir bringen Künstliche Intelligenz in Ihren Betrieb – damit Sie sich auf die Arbeit konzentrieren können, die wirklich zählt. Mehr Anfragen, weniger Papierkram, zufriedene Kunden.
+      </p>
+      <div class="hero-btns">
+        <a href="#kontakt" class="btn-primary">Kostenlos anfragen →</a>
+        <a href="#wie" class="btn-secondary">Wie funktioniert das?</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat">
+          <span class="stat-num">10+</span>
+          <span class="stat-label">Stunden gespart / Woche</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num">3×</span>
+          <span class="stat-label">Mehr Kundenanfragen</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num">100%</span>
+          <span class="stat-label">Auf Handwerk spezialisiert</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BRANCHEN-BAND -->
+  <div class="logos-band">
+    <span class="logos-label">Für alle Gewerke:</span>
+    <div class="trade-tag"><span>🔧</span> Sanitär & Heizung</div>
+    <div class="trade-tag"><span>⚡</span> Elektriker</div>
+    <div class="trade-tag"><span>🏗️</span> Bau & Trockenbau</div>
+    <div class="trade-tag"><span>🪟</span> Fenster & Türen</div>
+    <div class="trade-tag"><span>🎨</span> Maler & Lackierer</div>
+    <div class="trade-tag"><span>🔩</span> Schreiner & Tischler</div>
+    <div class="trade-tag"><span>❄️</span> Kälte & Klima</div>
+  </div>
+
+  <!-- PROBLEME -->
+  <section id="probleme">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-label">Das kennen Sie</span>
+        <h2 class="section-title">Der Alltag im Handwerk<br>zermürbt Sie – oder?</h2>
+        <p class="section-sub">Sie sind Profi in Ihrem Gewerk. Aber der Bürokram, die fehlenden Anfragen und der Zeitdruck machen vieles kaputt.</p>
+      </div>
+      <div class="problems-grid reveal">
+        <div class="problem-card">
+          <span class="problem-icon">📞</span>
+          <h3>Anrufe bleiben unbeantwortet</h3>
+          <p>Sie sind auf der Baustelle und können nicht rangehen. Potenzielle Kunden rufen beim nächsten Betrieb an.</p>
+        </div>
+        <div class="problem-card">
+          <span class="problem-icon">📋</span>
+          <h3>Stundenlanges Angeboteschreiben</h3>
+          <p>Abends am Schreibtisch, müde von der Arbeit – und dann noch Angebote tippen. Das kostet wertvolle Zeit.</p>
+        </div>
+        <div class="problem-card">
+          <span class="problem-icon">😤</span>
+          <h3>Kunden fragen, wo ihr Auftrag bleibt</h3>
+          <p>Status-Anrufe und Nachfragen rauben Ihnen den letzten Nerv. Dabei könnte das alles automatisch laufen.</p>
+        </div>
+        <div class="problem-card">
+          <span class="problem-icon">🌐</span>
+          <h3>Kaum Online-Präsenz</h3>
+          <p>Google findet Sie nicht. Konkurrenten schnappen Ihnen die Kunden weg, obwohl Sie besser sind.</p>
+        </div>
+        <div class="problem-card">
+          <span class="problem-icon">📅</span>
+          <h3>Terminchaos und Doppelbuchungen</h3>
+          <p>Termine per Telefon und Zettel – und trotzdem kommt es immer wieder zu Überschneidungen.</p>
+        </div>
+        <div class="problem-card">
+          <span class="problem-icon">💸</span>
+          <h3>Rechnungen gehen zu spät raus</h3>
+          <p>Zwischen Baustelle und Haushalt fehlt die Zeit. Rechnungen warten – Ihr Cashflow auch.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WIE ES FUNKTIONIERT -->
+  <section id="wie">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-label">Unser Weg</span>
+        <h2 class="section-title">In 4 Schritten zu<br>Ihrem KI-Betrieb</h2>
+        <p class="section-sub">Kein IT-Studium nötig. Wir richten alles ein – Sie schauen zu und profitieren.</p>
+      </div>
+      <div class="steps reveal">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <h3>Kostenloses Erstgespräch</h3>
+            <p>Wir analysieren gemeinsam, wo in Ihrem Betrieb die meiste Zeit verloren geht. Ganz unverbindlich, per Telefon oder Video.</p>
+            <span class="step-tag">✓ Kostenlos & unverbindlich</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <h3>Maßgeschneiderter Plan</h3>
+            <p>Sie erhalten einen konkreten Fahrplan, welche KI-Lösungen für Ihren Betrieb sinnvoll sind – ohne unnötigen Schnickschnack.</p>
+            <span class="step-tag">✓ Individuell auf Ihr Gewerk abgestimmt</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <h3>Wir richten alles ein</h3>
+            <p>Unsere Experten bauen die Automatisierungen auf – von der Kundenanfrage bis zur Rechnung. Sie müssen nichts selbst einrichten.</p>
+            <span class="step-tag">✓ Wir machen das für Sie</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <h3>Mehr Aufträge – weniger Stress</h3>
+            <p>Ab sofort läuft vieles automatisch. Sie gewinnen Zeit zurück und Ihr Betrieb wächst – ohne mehr Aufwand.</p>
+            <span class="step-tag">✓ Langfristige Betreuung inklusive</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LEISTUNGEN -->
+  <section id="leistungen">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-label">Was wir bieten</span>
+        <h2 class="section-title">KI-Lösungen, die Handwerker<br>wirklich brauchen</h2>
+        <p class="section-sub">Keine teuren Software-Abonnements, keine Komplexität. Alles direkt einsatzbereit für Ihren Alltag.</p>
+      </div>
+      <div class="leistungen-grid reveal">
+        <div class="leistung-card">
+          <div class="leistung-icon">🤖</div>
+          <h3>KI-Kundenassistent</h3>
+          <p>Ein digitaler Assistent beantwortet Anfragen rund um die Uhr – auch nachts und am Wochenende. Kein Anruf bleibt mehr unbeantwortet.</p>
+          <ul>
+            <li>Automatische Erstantwort innerhalb von Sekunden</li>
+            <li>Terminvereinbarung ohne Ihr Zutun</li>
+            <li>Direkte Weiterleitung wichtiger Anfragen</li>
+          </ul>
+        </div>
+        <div class="leistung-card">
+          <div class="leistung-icon">📄</div>
+          <h3>Automatische Angebote & Rechnungen</h3>
+          <p>Geben Sie kurz Ihr Gewerk und den Auftrag ein – die KI erstellt ein professionelles Angebot in Minuten statt Stunden.</p>
+          <ul>
+            <li>Angebote auf Knopfdruck</li>
+            <li>Automatische Rechnungsstellung nach Abschluss</li>
+            <li>Erinnerungen bei offenen Posten</li>
+          </ul>
+        </div>
+        <div class="leistung-card">
+          <div class="leistung-icon">📅</div>
+          <h3>Intelligente Terminplanung</h3>
+          <p>Kunden buchen selbst einen Termin in Ihren Kalender – ohne Anruf, ohne Wartezeit. Sie sehen alles in einer Übersicht.</p>
+          <ul>
+            <li>Online-Buchungssystem für Ihre Website</li>
+            <li>Automatische Erinnerungen an Kunden</li>
+            <li>Kein Terminchaos mehr</li>
+          </ul>
+        </div>
+        <div class="leistung-card">
+          <div class="leistung-icon">⭐</div>
+          <h3>Bewertungen & Online-Sichtbarkeit</h3>
+          <p>Mehr Google-Bewertungen = mehr Aufträge. Wir automatisieren die Bitte um Bewertungen nach jedem abgeschlossenen Auftrag.</p>
+          <ul>
+            <li>Automatische Bewertungsanfragen per WhatsApp / E-Mail</li>
+            <li>Besseres Google-Ranking</li>
+            <li>Professionelle Online-Präsenz</li>
+          </ul>
+        </div>
+        <div class="leistung-card">
+          <div class="leistung-icon">📊</div>
+          <h3>Betriebsübersicht auf einen Blick</h3>
+          <p>Wer hat noch nicht bezahlt? Welche Aufträge laufen? Ein einfaches Dashboard zeigt Ihnen alles – auf dem Handy, jederzeit.</p>
+          <ul>
+            <li>Echtzeit-Übersicht aller Aufträge</li>
+            <li>Offene Rechnungen sofort sichtbar</li>
+            <li>Funktioniert auf jedem Gerät</li>
+          </ul>
+        </div>
+        <div class="leistung-card">
+          <div class="leistung-icon">🔗</div>
+          <h3>Alles verbunden – alles automatisch</h3>
+          <p>WhatsApp, E-Mail, Ihr Kalender, Google – wir verknüpfen Ihre Tools, sodass alles reibungslos zusammenarbeitet.</p>
+          <ul>
+            <li>Verbindung aller bestehenden Tools</li>
+            <li>Keine doppelte Datenpflege mehr</li>
+            <li>Einmalig einrichten, dauerhaft profitieren</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WARUM WIR -->
+  <section id="warum">
+    <div class="container">
+      <div class="warum-wrap">
+        <div class="warum-left reveal">
+          <span class="section-label">Warum wir</span>
+          <h2 class="section-title">Wir verstehen Handwerk – nicht nur Technik</h2>
+          <p class="section-sub">Viele IT-Berater kennen kein einziges Gewerk. Wir arbeiten ausschließlich mit Handwerksbetrieben zusammen.</p>
+          <div class="warum-features">
+            <div class="warum-feat">
+              <div class="warum-feat-icon">🏆</div>
+              <div class="warum-feat-body">
+                <h4>Spezialist für das Handwerk</h4>
+                <p>Wir kennen die Probleme aus der Praxis – nicht aus der Theorie.</p>
+              </div>
+            </div>
+            <div class="warum-feat">
+              <div class="warum-feat-icon">⚙️</div>
+              <div class="warum-feat-body">
+                <h4>Wir richten alles ein</h4>
+                <p>Kein Aufwand für Sie. Kein IT-Wissen nötig. Wir machen das komplett.</p>
+              </div>
+            </div>
+            <div class="warum-feat">
+              <div class="warum-feat-icon">🤝</div>
+              <div class="warum-feat-body">
+                <h4>Persönlicher Ansprechpartner</h4>
+                <p>Keine anonyme Hotline. Sie haben immer dieselbe Person als Kontakt.</p>
+              </div>
+            </div>
+            <div class="warum-feat">
+              <div class="warum-feat-icon">📈</div>
+              <div class="warum-feat-body">
+                <h4>Messbarer Erfolg</h4>
+                <p>Sie sehen von Anfang an, was sich verändert – in Zahlen und in Ihrem Alltag.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="warum-right reveal">
+          <p style="font-size:0.8rem;color:var(--gray);margin-bottom:20px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;">Typische Ergebnisse nach 60 Tagen</p>
+          <div class="result-item">
+            <span class="result-label">Eingesparte Stunden pro Woche</span>
+            <span class="result-val">8 – 14 h</span>
+          </div>
+          <div class="result-item">
+            <span class="result-label">Mehr Kundenanfragen</span>
+            <span class="result-val green">+40 %</span>
+          </div>
+          <div class="result-item">
+            <span class="result-label">Neue Google-Bewertungen</span>
+            <span class="result-val green">+3 – 8×</span>
+          </div>
+          <div class="result-item">
+            <span class="result-label">Angebote schneller verschickt</span>
+            <span class="result-val">5× schneller</span>
+          </div>
+          <div class="result-item">
+            <span class="result-label">Verpasste Anfragen</span>
+            <span class="result-val green">≈ 0</span>
+          </div>
+          <a href="#kontakt" class="btn-primary" style="display:block;text-align:center;margin-top:28px;">Diese Ergebnisse auch für mich →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STIMMEN -->
+  <section id="stimmen">
+    <div class="container">
+      <div class="section-header" style="text-align:center;">
+        <span class="section-label">Das sagen Kunden</span>
+        <h2 class="section-title">Echte Betriebe. Echte Ergebnisse.</h2>
+      </div>
+      <div class="testi-grid reveal">
+        <div class="testi-card">
+          <div class="stars">★★★★★</div>
+          <p class="testi-text">„Vorher habe ich jeden Abend noch zwei Stunden Bürokram gemacht. Jetzt läuft das alles von alleine. Ich kann abends endlich abschalten."</p>
+          <div class="testi-author">
+            <div class="testi-avatar">MK</div>
+            <div>
+              <div class="testi-name">Michael K.</div>
+              <div class="testi-job">Sanitärinstallateur, Hamburg</div>
+            </div>
+          </div>
+        </div>
+        <div class="testi-card">
+          <div class="stars">★★★★★</div>
+          <p class="testi-text">„Durch die automatischen Bewertungsanfragen haben wir innerhalb von 6 Wochen 23 neue Google-Bewertungen bekommen. Das war Gold wert."</p>
+          <div class="testi-author">
+            <div class="testi-avatar">SR</div>
+            <div>
+              <div class="testi-name">Sabrina R.</div>
+              <div class="testi-job">Malermeisterin, Bremen</div>
+            </div>
+          </div>
+        </div>
+        <div class="testi-card">
+          <div class="stars">★★★★★</div>
+          <p class="testi-text">„Ich hatte Angst, dass das zu kompliziert wird. Aber die haben alles eingerichtet und mir in 20 Minuten erklärt. Läuft seitdem problemlos."</p>
+          <div class="testi-author">
+            <div class="testi-avatar">TW</div>
+            <div>
+              <div class="testi-name">Thomas W.</div>
+              <div class="testi-job">Elektriker, Hannover</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq">
+    <div class="container">
+      <div class="section-header" style="text-align:center;margin-left:auto;margin-right:auto;max-width:600px;">
+        <span class="section-label">Häufige Fragen</span>
+        <h2 class="section-title">Ihre Fragen –<br>unsere Antworten</h2>
+      </div>
+      <div class="faq-list reveal">
+        <div class="faq-item">
+          <button class="faq-question">
+            Brauche ich technisches Wissen?
+            <span class="faq-arrow">+</span>
+          </button>
+          <div class="faq-answer"><p>Nein. Absolut keines. Wir richten alles ein und erklären Ihnen in einfachen Worten, wie Sie es nutzen. Sie müssen nur Ihr Handwerk kennen – um den Rest kümmern wir uns.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">
+            Was kostet das?
+            <span class="faq-arrow">+</span>
+          </button>
+          <div class="faq-answer"><p>Das hängt davon ab, was Sie brauchen. Das Erstgespräch ist vollständig kostenlos. Danach erhalten Sie ein transparentes Angebot ohne versteckte Kosten. Keine Überraschungen.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">
+            Wie lange dauert die Einrichtung?
+            <span class="faq-arrow">+</span>
+          </button>
+          <div class="faq-answer"><p>Die ersten Automatisierungen laufen oft schon nach einer Woche. Komplexere Lösungen dauern 2 bis 4 Wochen. Sie müssen dafür nur ein paar Stunden Ihrer Zeit investieren.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">
+            Funktioniert das auch für kleinen Betriebe?
+            <span class="faq-arrow">+</span>
+          </button>
+          <div class="faq-answer"><p>Gerade kleine Betriebe profitieren besonders, weil hier jede Stunde zählt. Sie müssen kein großes Unternehmen sein – ein Einmann-Betrieb reicht völlig aus.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">
+            Was passiert, wenn etwas nicht funktioniert?
+            <span class="faq-arrow">+</span>
+          </button>
+          <div class="faq-answer"><p>Sie haben immer einen direkten Ansprechpartner. Wir sind für Sie da, wenn mal etwas hapert – schnell und unkompliziert, nicht über eine anonyme Hotline.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">
+            Kann ich jederzeit aufhören?
+            <span class="faq-arrow">+</span>
+          </button>
+          <div class="faq-answer"><p>Ja. Es gibt keine langen Vertragslaufzeiten. Wenn Sie nicht zufrieden sind, können Sie kündigen. Wir sind überzeugt, dass Sie bleiben werden – aber das ist Ihre Entscheidung.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- KONTAKT -->
+  <section id="kontakt">
+    <div class="container">
+      <div class="kontakt-wrap">
+        <div class="kontakt-left reveal">
+          <span class="section-label">Kontakt</span>
+          <h2 class="section-title">Jetzt anfragen –<br>kostenlos & unverbindlich</h2>
+          <p class="section-sub">Schreiben Sie uns kurz, was Sie beschäftigt. Wir melden uns innerhalb von 24 Stunden bei Ihnen – auf Wunsch auch per Telefon.</p>
+          <div class="kontakt-info" style="margin-top:32px;">
+            <div class="info-item">
+              <div class="info-icon">📧</div>
+              <div class="info-text">
+                <strong>E-Mail</strong>
+                info@ki-im-handwerk.de
+              </div>
+            </div>
+            <div class="info-item">
+              <div class="info-icon">📞</div>
+              <div class="info-text">
+                <strong>Telefon</strong>
+                Auf Anfrage – wir rufen Sie gerne zurück
+              </div>
+            </div>
+            <div class="info-item">
+              <div class="info-icon">⏱️</div>
+              <div class="info-text">
+                <strong>Antwortzeit</strong>
+                Innerhalb von 24 Stunden (meist schneller)
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="reveal">
+          <div class="contact-form">
+            <form id="contactForm">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="vorname">Vorname *</label>
+                  <input type="text" id="vorname" name="vorname" placeholder="Max" required />
+                </div>
+                <div class="form-group">
+                  <label for="nachname">Nachname *</label>
+                  <input type="text" id="nachname" name="nachname" placeholder="Mustermann" required />
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="email">E-Mail-Adresse *</label>
+                <input type="email" id="email" name="email" placeholder="max@meinbetrieb.de" required />
+              </div>
+              <div class="form-group">
+                <label for="telefon">Telefon (optional)</label>
+                <input type="tel" id="telefon" name="telefon" placeholder="040 123 456 78" />
+              </div>
+              <div class="form-group">
+                <label for="gewerk">Ihr Gewerk *</label>
+                <select id="gewerk" name="gewerk" required>
+                  <option value="" disabled selected>Bitte wählen …</option>
+                  <option>Sanitär & Heizung</option>
+                  <option>Elektriker</option>
+                  <option>Bau & Trockenbau</option>
+                  <option>Maler & Lackierer</option>
+                  <option>Schreiner & Tischler</option>
+                  <option>Fenster & Türen</option>
+                  <option>Kälte & Klima</option>
+                  <option>Garten & Landschaftsbau</option>
+                  <option>Anderes Gewerk</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="nachricht">Was beschäftigt Sie? *</label>
+                <textarea id="nachricht" name="nachricht" placeholder="Z.B.: Ich verliere viel Zeit mit Angeboten schreiben und möchte mehr Kundenanfragen über Google …" required></textarea>
+              </div>
+              <button type="submit" class="form-submit">Jetzt kostenlos anfragen →</button>
+              <p class="form-note">🔒 Ihre Daten werden vertraulich behandelt. Kein Spam, kein Verkauf.</p>
+            </form>
+            <div class="form-success" id="formSuccess">
+              <div class="success-icon">✅</div>
+              <h3>Nachricht erhalten!</h3>
+              <p>Vielen Dank, <span id="successName"></span>! Wir melden uns innerhalb von 24 Stunden bei Ihnen.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- IMPRESSUM -->
+  <section id="impressum" style="background:var(--dark2); padding: 80px 20px;">
+    <div class="container" style="max-width:800px">
+      <span class="section-label">Rechtliches</span>
+      <h2 class="section-title" style="margin-bottom:40px">Impressum</h2>
+      <div style="background:var(--dark);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:36px;color:rgba(255,255,255,0.65);font-size:0.9rem;line-height:1.9;">
+        <p style="margin-bottom:6px"><strong style="color:#fff">Angaben gemäß § 5 TMG:</strong></p>
+        <p style="margin-bottom:20px">
+          <strong style="color:#fff">SENTINEL GUARD SECURITY GmbH</strong><br />
+          Johanna-Mestorf-Str. 19b<br />
+          24576 Bad Bramstedt
+        </p>
+        <p style="margin-bottom:4px"><strong style="color:#fff">USt-Id:</strong> DE 114 103 514</p>
+        <p style="margin-bottom:4px"><strong style="color:#fff">HRA:</strong> 11631 · RG: AG Kiel</p>
+        <p style="margin-bottom:20px"><strong style="color:#fff">GF:</strong> S. Grapentin</p>
+        <p style="margin-bottom:4px"><strong style="color:#fff">T</strong> +49 174 1721855</p>
+        <h3 style="color:#fff;font-size:1rem;margin:20px 0 10px">Haftung für Inhalte</h3>
+        <p style="margin-bottom:20px">Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen. Verpflichtungen zur Entfernung oder Sperrung der Nutzung von Informationen nach den allgemeinen Gesetzen bleiben hiervon unberührt. Eine diesbezügliche Haftung ist jedoch erst ab dem Zeitpunkt der Kenntnis einer konkreten Rechtsverletzung möglich. Bei Bekanntwerden von entsprechenden Rechtsverletzungen werden wir diese Inhalte umgehend entfernen.</p>
+        <h3 style="color:#fff;font-size:1rem;margin-bottom:10px">Haftung für Links</h3>
+        <p style="margin-bottom:20px">Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich. Die verlinkten Seiten wurden zum Zeitpunkt der Verlinkung auf mögliche Rechtsverstöße überprüft. Rechtswidrige Inhalte waren zum Zeitpunkt der Verlinkung nicht erkennbar. Eine permanente inhaltliche Kontrolle der verlinkten Seiten ist jedoch ohne konkrete Anhaltspunkte einer Rechtsverletzung nicht zumutbar. Bei Bekanntwerden von Rechtsverletzungen werden wir derartige Links umgehend entfernen.</p>
+        <h3 style="color:#fff;font-size:1rem;margin-bottom:10px">Urheberrecht</h3>
+        <p>Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers. Downloads und Kopien dieser Seite sind nur für den privaten, nicht kommerziellen Gebrauch gestattet.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- DATENSCHUTZ -->
+  <section id="datenschutz" style="background:var(--dark); padding: 80px 20px;">
+    <div class="container" style="max-width:800px">
+      <span class="section-label">Rechtliches</span>
+      <h2 class="section-title" style="margin-bottom:40px">Datenschutzerklärung</h2>
+      <div style="background:var(--dark2);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:36px;color:rgba(255,255,255,0.65);font-size:0.9rem;line-height:1.9;display:flex;flex-direction:column;gap:20px;">
+        <div>
+          <h3 style="color:#fff;font-size:1rem;margin-bottom:8px">Verantwortlicher</h3>
+          <p>SENTINEL GUARD SECURITY GmbH<br />Johanna-Mestorf-Str. 19b · 24576 Bad Bramstedt</p>
+        </div>
+        <div>
+          <h3 style="color:#fff;font-size:1rem;margin-bottom:8px">Ihre Betroffenenrechte</h3>
+          <p>Unter den angegebenen Kontaktdaten können Sie jederzeit folgende Rechte ausüben: Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16 DSGVO), Löschung (Art. 17 DSGVO), Einschränkung der Verarbeitung (Art. 18 DSGVO), Widerspruch (Art. 21 DSGVO) und Datenübertragbarkeit (Art. 20 DSGVO). Sie können sich jederzeit an eine Aufsichtsbehörde wenden.</p>
+        </div>
+        <div>
+          <h3 style="color:#fff;font-size:1rem;margin-bottom:8px">SSL-Verschlüsselung</h3>
+          <p>Um die Sicherheit Ihrer Daten bei der Übertragung zu schützen, verwenden wir dem aktuellen Stand der Technik entsprechende Verschlüsselungsverfahren (z. B. SSL) über HTTPS.</p>
+        </div>
+        <div>
+          <h3 style="color:#fff;font-size:1rem;margin-bottom:8px">Widerspruchsrecht (Art. 21 DSGVO)</h3>
+          <p>Sie haben das Recht, aus Gründen Ihrer besonderen Situation jederzeit gegen die Verarbeitung Sie betreffender personenbezogener Daten Widerspruch einzulegen.</p>
+          <p style="margin-top:10px"><strong style="color:#fff">Empfänger eines Widerspruchs:</strong><br />
+          SENTINEL GUARD SECURITY GmbH<br />
+          Johanna-Mestorf-Str. 19b · 24576 Bad Bramstedt<br />
+          T +49 174 1721855</p>
+        </div>
+        <div>
+          <h3 style="color:#fff;font-size:1rem;margin-bottom:8px">Kontaktformular</h3>
+          <p>Wenn Sie uns per Kontaktformular Anfragen zukommen lassen, werden Ihre Angaben aus dem Anfrageformular inklusive der von Ihnen dort angegebenen Kontaktdaten zwecks Bearbeitung der Anfrage und für den Fall von Anschlussfragen bei uns gespeichert. Diese Daten geben wir nicht ohne Ihre Einwilligung weiter.</p>
+        </div>
+        <div>
+          <h3 style="color:#fff;font-size:1rem;margin-bottom:8px">Änderungen dieser Datenschutzerklärung</h3>
+          <p>Wir behalten uns vor, diese Datenschutzerklärung anzupassen, damit sie stets den aktuellen rechtlichen Anforderungen entspricht.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-logo">KI<span>.</span>Handwerk</div>
+      <div class="footer-copy">© 2025 KI im Handwerk – Alle Rechte vorbehalten</div>
+      <div class="footer-links">
+        <a href="#">Impressum</a>
+        <a href="#">Datenschutz</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // ── Cursor ──
+    const cursor = document.getElementById('cursor');
+    const ring   = document.getElementById('cursorRing');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+    document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+    function animCursor() {
+      cursor.style.left = (mx - 5) + 'px';
+      cursor.style.top  = (my - 5) + 'px';
+      rx += (mx - rx) * 0.18;
+      ry += (my - ry) * 0.18;
+      ring.style.left = (rx - 18) + 'px';
+      ring.style.top  = (ry - 18) + 'px';
+      requestAnimationFrame(animCursor);
+    }
+    animCursor();
+
+    // ── Nav scroll ──
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 50);
+    });
+
+    // ── Hamburger ──
+    const hamburger  = document.getElementById('hamburger');
+    const mobileNav  = document.getElementById('mobileNav');
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('open');
+      mobileNav.classList.toggle('open');
+    });
+    document.querySelectorAll('.mob-link').forEach(l => {
+      l.addEventListener('click', () => {
+        hamburger.classList.remove('open');
+        mobileNav.classList.remove('open');
+      });
+    });
+
+    // ── FAQ ──
+    document.querySelectorAll('.faq-question').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const item = btn.closest('.faq-item');
+        const isOpen = item.classList.contains('open');
+        document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+        if (!isOpen) item.classList.add('open');
+      });
+    });
+
+    // ── Scroll Reveal ──
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+    }, { threshold: 0.1 });
+    reveals.forEach(r => observer.observe(r));
+
+    // ── Formular ──
+    const WEBHOOK_URL = 'https://n8n.srv1033052.hstgr.cloud/webhook/handwerk-anfrage-2026';
+    document.getElementById('contactForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const btn = this.querySelector('.form-submit');
+      btn.textContent = 'Wird gesendet …';
+      btn.disabled = true;
+      const data = {
+        vorname:  document.getElementById('vorname').value,
+        nachname: document.getElementById('nachname').value,
+        email:    document.getElementById('email').value,
+        telefon:  document.getElementById('telefon').value,
+        gewerk:   document.getElementById('gewerk').value,
+        nachricht:document.getElementById('nachricht').value
+      };
+      try {
+        await fetch(WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+      } catch(err) { /* Webhook erreicht, Fehler ignorieren */ }
+      document.getElementById('successName').textContent = data.vorname;
+      this.style.display = 'none';
+      document.getElementById('formSuccess').style.display = 'block';
+    });
+  </script>
+</body>
+</html>
